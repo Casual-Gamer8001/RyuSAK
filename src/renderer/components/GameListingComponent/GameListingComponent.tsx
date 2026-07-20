@@ -52,6 +52,7 @@ const Cover = styled(Box)(() => ({
 }));
 
 const gameIconGridSizes: { [key: string]: number } = {
+  extraSmall: 1,
   small: 2,
   medium: 3,
   large: 4

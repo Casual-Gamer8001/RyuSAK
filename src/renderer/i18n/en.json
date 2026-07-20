@@ -7,6 +7,7 @@
   "steamGridDbApiKey": "SteamGridDB API key",
   "steamGridDbApiKeyHelp": "Create or view your SteamGridDB API key here:",
   "gameIconSize": "Game icon size",
+  "gameIconSizeExtraSmall": "Extra small",
   "gameIconSizeSmall": "Small",
   "gameIconSizeMedium": "Medium",
   "gameIconSizeLarge": "Large",

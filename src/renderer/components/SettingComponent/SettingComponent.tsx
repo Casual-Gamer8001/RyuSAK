@@ -73,6 +73,7 @@ const SettingComponent = () => {
         <FormControl sx={{ mt: 3 }} fullWidth>
           <InputLabel id="game-icon-size-label">{t("gameIconSize")}</InputLabel>
           <Select labelId="game-icon-size-label" label={t("gameIconSize")} value={gameIconSize} onChange={(e) => setGameIconSize(e.target.value)}>
+            <MenuItem value="extraSmall">{t("gameIconSizeExtraSmall")}</MenuItem>
             <MenuItem value="small">{t("gameIconSizeSmall")}</MenuItem>
             <MenuItem value="medium">{t("gameIconSizeMedium")}</MenuItem>
             <MenuItem value="large">{t("gameIconSizeLarge")}</MenuItem>
