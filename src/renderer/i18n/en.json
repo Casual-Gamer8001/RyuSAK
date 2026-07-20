@@ -11,7 +11,7 @@
   "gameIconSizeSmall": "Small",
   "gameIconSizeMedium": "Medium",
   "gameIconSizeLarge": "Large",
-  "locale": "Locale",
+  "locale": "Language",
   "deleteGame": "Delete game",
   "areYouSure": "Are you sure?",
   "deleteGameNotice": "This option will delete the shader cache, CPU cache and mods folder for this game. This action cannot be undone.",
