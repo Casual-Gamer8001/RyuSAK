@@ -1,0 +1,27 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/recommended",
+    "plugin:import/electron",
+    "plugin:import/typescript"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "rules": {
+    "@typescript-eslint/explicit-module-boundary-types": 0,
+    "@typescript-eslint/ban-types": 0,
+    "quotes": "off",
+    "@typescript-eslint/quotes": ["error", "double"],
+    "semi": "off",
+    "@typescript-eslint/semi": ["error", "always"],
+    "object-curly-spacing": ["error", "always"],
+    "array-bracket-spacing": ["error", "never"],
+    "space-in-parens": ["error", "never"]
+  }
+}
