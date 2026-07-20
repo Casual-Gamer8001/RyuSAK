@@ -113,4 +113,5 @@ export type GameBananaMod = {
 export type Settings = {
   proxy?: string,
   steamGridDbApiKey?: string,
+  gameIconSize?: string,
 };

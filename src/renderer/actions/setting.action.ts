@@ -7,6 +7,7 @@ import { i18n } from "../app";
 export interface ISetting {
   setProxyAction: (proxy: string) => void,
   setSteamGridDbApiKeyAction: (steamGridDbApiKey: string) => void,
+  setGameIconSizeAction: (gameIconSize: string) => void,
   setLocaleAction: (locale: string) => void
 }
 
@@ -38,6 +39,20 @@ const createSettingSlice = (set: SetState<ISetting>): ISetting => ({
     });
 
     return await invokeIpc("set-steamgriddb-api-key", steamGridDbApiKey);
+  },
+  setGameIconSizeAction: async (gameIconSize) => {
+    const settings = useStore.getState().settings;
+
+    if (settings.gameIconSize == gameIconSize) return;
+
+    useStore.setState({
+      settings: {
+        ...settings,
+        gameIconSize,
+      },
+    });
+
+    return await invokeIpc("set-game-icon-size", gameIconSize);
   },
   setLocaleAction: async (locale) => {
     if (localStorage.getItem(LS_KEYS.LOCALE) != locale) {

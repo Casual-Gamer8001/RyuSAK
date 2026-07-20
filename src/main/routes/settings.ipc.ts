@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import HttpService from "../services/HttpService";
-import { proxyFile, steamGridDbApiKeyFile, SYS_SETTINGS } from "../../index";
+import { gameIconSizeFile, proxyFile, steamGridDbApiKeyFile, SYS_SETTINGS } from "../../index";
 
 export const setProxy = async (proxy: string) => {
   try {
@@ -29,6 +29,19 @@ export const setSteamGridDbApiKey = async (steamGridDbApiKey: string) => {
     }
 
     SYS_SETTINGS.steamGridDbApiKey = steamGridDbApiKey;
+
+    return true;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
+};
+
+export const setGameIconSize = async (gameIconSize: string) => {
+  try {
+    const value = ["small", "medium", "large"].includes(gameIconSize) ? gameIconSize : "small";
+    await fs.writeFile(gameIconSizeFile, value);
+    SYS_SETTINGS.gameIconSize = value;
 
     return true;
   } catch (e) {

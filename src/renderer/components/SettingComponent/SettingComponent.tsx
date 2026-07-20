@@ -25,17 +25,20 @@ const SettingComponent = () => {
     settings,
     setProxyAction,
     setSteamGridDbApiKeyAction,
+    setGameIconSizeAction,
     setLocaleAction
   ] = useStore(state => [
     state.settings,
     state.setProxyAction,
     state.setSteamGridDbApiKeyAction,
+    state.setGameIconSizeAction,
     state.setLocaleAction
   ]);
 
   const [open, setOpen] = useState(false);
   const [proxy, setProxy] = useState(settings.proxy);
   const [steamGridDbApiKey, setSteamGridDbApiKey] = useState(settings.steamGridDbApiKey || "");
+  const [gameIconSize, setGameIconSize] = useState(settings.gameIconSize || "small");
   const [locale, setLocale] = useState(localStorage.getItem(LS_KEYS.LOCALE) ?? "en");
 
   const handleClose = () =>
@@ -44,6 +47,7 @@ const SettingComponent = () => {
   const handleSave = async () => {
     await setProxyAction(proxy);
     await setSteamGridDbApiKeyAction(steamGridDbApiKey);
+    await setGameIconSizeAction(gameIconSize);
     await setLocaleAction(locale);
 
     setOpen(false);
@@ -66,6 +70,14 @@ const SettingComponent = () => {
             https://www.steamgriddb.com/profile/preferences/api
           </Link>
         </Typography>
+        <FormControl sx={{ mt: 3 }} fullWidth>
+          <InputLabel id="game-icon-size-label">{t("gameIconSize")}</InputLabel>
+          <Select labelId="game-icon-size-label" label={t("gameIconSize")} value={gameIconSize} onChange={(e) => setGameIconSize(e.target.value)}>
+            <MenuItem value="small">{t("gameIconSizeSmall")}</MenuItem>
+            <MenuItem value="medium">{t("gameIconSizeMedium")}</MenuItem>
+            <MenuItem value="large">{t("gameIconSizeLarge")}</MenuItem>
+          </Select>
+        </FormControl>
         <FormControl sx={{ mt: 3, mb: 1 }} fullWidth>
           <InputLabel id="locale-label">{t("locale")}</InputLabel>
           <Select labelId="locale-label" label={t("locale")} value={locale} onChange={(e) => setLocale(e.target.value)}>

@@ -21,7 +21,7 @@ import {
 } from "./modsDownload";
 import { countShaders, countShadersProps, installShaders, installShadersProps, shareShaders } from "./shaders";
 import { searchGameBanana, searchProps } from "./gamebanana";
-import { setProxy, setSteamGridDbApiKey } from "./settings.ipc";
+import { setGameIconSize, setProxy, setSteamGridDbApiKey } from "./settings.ipc";
 import searchSteamGridDbCovers, { steamGridDbCoverSearchProps } from "./steamgriddb";
 
 export type IPCCalls = {
@@ -46,6 +46,7 @@ export type IPCCalls = {
   "delete-game": ReturnType<typeof deleteGame>,
   "set-proxy": ReturnType<typeof setProxy>,
   "set-steamgriddb-api-key": ReturnType<typeof setSteamGridDbApiKey>,
+  "set-game-icon-size": ReturnType<typeof setGameIconSize>,
   "get-ryujinx-appdata-path": ReturnType<typeof getRyujinxPath>,
 };
 
@@ -71,6 +72,7 @@ const makeIpcRoutes = (mainWindow: BrowserWindow) => {
   ipcMain.handle("delete-game", (_, ...args: deleteGameProps) => deleteGame(...args));
   ipcMain.handle("set-proxy", async (_, proxy: string) => setProxy(proxy));
   ipcMain.handle("set-steamgriddb-api-key", async (_, steamGridDbApiKey: string) => setSteamGridDbApiKey(steamGridDbApiKey));
+  ipcMain.handle("set-game-icon-size", async (_, gameIconSize: string) => setGameIconSize(gameIconSize));
   ipcMain.handle("get-ryujinx-appdata-path", (_) => getRyujinxPath());
 };
 

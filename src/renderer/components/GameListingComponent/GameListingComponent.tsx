@@ -51,6 +51,12 @@ const Cover = styled(Box)(() => ({
   backgroundSize: "cover",
 }));
 
+const gameIconGridSizes: { [key: string]: number } = {
+  small: 2,
+  medium: 3,
+  large: 4
+};
+
 const GameListingComponent = ({ config }: IConfigContainer) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -63,6 +69,7 @@ const GameListingComponent = ({ config }: IConfigContainer) => {
   const [filteredGames, setFilteredGames] = useState<typeof games>([]);
   const [showHiddenGames, setShowHiddenGames] = useState(false);
   const [hiddenGames, setHiddenGames] = useState<string[]>([]);
+  const gameIconGridSize = gameIconGridSizes[settings.gameIconSize || "small"] || gameIconGridSizes.small;
 
   // 1. Scan games on user system
   // 2. Build metadata from eshop with titleId as argument
@@ -166,7 +173,7 @@ const GameListingComponent = ({ config }: IConfigContainer) => {
           filteredGames
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((item, index) => (
-              <Grid tabIndex={index} className="game" item xs={2} onClick={() => onGameDetailClick(item.id)} style={{ cursor: "pointer" }} key={index}>
+              <Grid tabIndex={index} className="game" item xs={gameIconGridSize} onClick={() => onGameDetailClick(item.id)} style={{ cursor: "pointer" }} key={index}>
                 <Tooltip arrow placement="top" title={item.name}>
                   <div>
                     <Label>{hiddenGames.includes(item.id.toUpperCase()) ? `${item.name} (${t("hidden")})` : item.name}</Label>

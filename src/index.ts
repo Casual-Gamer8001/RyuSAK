@@ -14,9 +14,11 @@ export const hasPortableFile = fs.existsSync(path.resolve(app.getPath("exe"), ".
 export const cacheDir = hasPortableFile ? path.resolve(app.getPath("exe"), "..", "electron_cache") : path.join(app.getPath("userData"));
 export const proxyFile = path.resolve(cacheDir, "proxy");
 export const steamGridDbApiKeyFile = path.resolve(cacheDir, "steamgriddb-api-key");
+export const gameIconSizeFile = path.resolve(cacheDir, "game-icon-size");
 export const SYS_SETTINGS = {
   proxy: readFile(proxyFile),
   steamGridDbApiKey: readFile(steamGridDbApiKeyFile),
+  gameIconSize: readFile(gameIconSizeFile) || "small",
 };
 let updateDownloaded = false;
 
