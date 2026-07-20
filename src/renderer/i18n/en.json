@@ -28,6 +28,8 @@
   "pickRyuDataPath": "Select your Ryujinx or Ryubing data folder. This is the folder that contains subfolders like games, system, mods, and bis. For a default Windows install, use %APPDATA%\\Ryujinx. For a portable install, select the emulator's Portable folder.",
   "addConfigTitle": "Add a name to your new configuration",
   "addConfigEg": "e.g \"Portable\", \"Flatpak\"",
+  "renameConfiguration": "Rename configuration",
+  "renameConfigTitle": "Enter a new name for this configuration",
   "mode": "Mode",
   "readingDataPath": "RyuSAK is reading data from",
   "launchRyujinx": "<a href=\"https://ryujinx.app/download\" target=\"_blank\">Download Ryujinx</a> and launch any game first. All your games should show up here automatically after that. Please note, that only games launched in Ryujinx will be shown here. Ryujinx is not behind a paywall. If you are using a portable installation, use the \"Configuration\" button on the top left.",

@@ -11,6 +11,7 @@ export interface IEmulatorConfig {
   selectedConfig: RyujinxConfigMeta;
   setSelectConfigAction: (selectedConfig: RyujinxConfigMeta) => void,
   removeEmulatorConfigAction: (path: string) => void,
+  renameEmulatorConfigAction: (path: string) => void,
   createDefaultConfig: () => void;
   emulatorGames: RyusakEmulatorGame[];
 }
@@ -82,6 +83,38 @@ const emulatorConfig = (set: SetState<IEmulatorConfig>, get: GetState<Partial<IA
     configs.splice(index, 1);
     localStorage.setItem(LS_KEYS.CONFIG, JSON.stringify(configs));
     return set({ ryujinxConfigs: configs, selectedConfig: configs[0] });
+  },
+  renameEmulatorConfigAction: async (path) => {
+    const configs = get().ryujinxConfigs;
+    const config = configs.find(item => item.path === path);
+
+    if (!config) {
+      return null;
+    }
+
+    const { isConfirmed, value } = await Swal.fire({
+      text: i18n.t("renameConfigTitle"),
+      input: "text",
+      inputValue: config.name,
+      inputAttributes: {
+        placeholder: i18n.t("addConfigEg")
+      },
+      showCancelButton: true,
+    });
+
+    if (!isConfirmed) {
+      return null;
+    }
+
+    const name = `${value || ""}`.trim();
+    if (!name || name === config.name) {
+      return null;
+    }
+
+    const updatedConfigs = configs.map(item => item.path === path ? { ...item, name } : item);
+    const selectedConfig = updatedConfigs.find(item => item.path === path);
+    localStorage.setItem(LS_KEYS.CONFIG, JSON.stringify(updatedConfigs));
+    return set({ ryujinxConfigs: updatedConfigs, selectedConfig });
   },
   createDefaultConfig: async () => {
     const configs = get().ryujinxConfigs;
