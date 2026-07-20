@@ -36,11 +36,11 @@ jobs:
       - name: Setup NodeJS environment
         uses: actions/setup-node@v4
         with:
-          node-version: 14.20.0
+          node-version: 24
           cache: 'npm'
 
       - name: Install dependencies
-        run:  npm clean-install --include=dev
+        run:  npm ci --include=dev
 
       - name: Build
         run:  npm run build -- --arch ${{ matrix.arch }}
