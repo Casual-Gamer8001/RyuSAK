@@ -31,7 +31,7 @@ Choose **Portable install** in setup to create the `portable` marker and keep se
 * Download shaders
 * Download mods
 
-Product keys and firmware download/install functionality have been removed from this community build.
+In an effort to keep Nintendo from fondling my booty cheeks. Product keys and firmware download/install functionality have been removed from this community build.
 
 ## Contributing
 Requirements:
