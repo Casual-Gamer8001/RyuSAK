@@ -1,15 +1,17 @@
 # RyuSAK 1.7.0 Community Build
 
-![showDownloads](https://img.shields.io/github/downloads/Ecks1337/RyuSAK/total?style=for-the-badge)
-![showVersion](https://img.shields.io/github/package-json/v/Ecks1337/RyuSAK?style=for-the-badge)
-![showLicense](https://img.shields.io/github/license/Ecks1337/RyuSAK?style=for-the-badge)
+![showDownloads](https://img.shields.io/github/downloads/Casual-Gamer8001/RyuSAK/total?style=for-the-badge)
+![showVersion](https://img.shields.io/github/package-json/v/Casual-Gamer8001/RyuSAK?style=for-the-badge)
+![showLicense](https://img.shields.io/github/license/Casual-Gamer8001/RyuSAK?style=for-the-badge)
 
 <p align="center">
-  <img width="80%" alt="screenshot" src="https://raw.githubusercontent.com/Ecks1337/RyuSAK/master/screenshot.png" />
+  <img width="80%" alt="screenshot" src="screenshot.png" />
 </p>
 
+This is a community-maintained fork of the original [Ecks1337/RyuSAK](https://github.com/Ecks1337/RyuSAK) project.
+
 ## Installation
-Download `RyuSAK-1.7.0-Setup.exe` from this fork's releases. The setup wizard lets you choose either a standard install or a portable install.
+Download `RyuSAK-1.7.0-Setup.exe` from the [v1.7.0 release](https://github.com/Casual-Gamer8001/RyuSAK/releases/tag/v1.7.0). The setup wizard asks whether you want a standard install or a portable install before you choose the install folder.
 
 ### Windows
 
@@ -20,7 +22,7 @@ Choose **Standard install** in setup to store RyuSAK settings in your Windows us
 Choose **Portable install** in setup to create the `portable` marker and keep settings in an `electron_cache` folder next to `RyuSAK.exe`.
 
 ## Features
-* Add one or multiple Ryujinx folders (where `Ryujinx.exe` is located) to manage different builds (such as mainline, portable, LDN, etc.) 
+* Add one or multiple Ryujinx/Ryubing data folders to manage different emulator installs
 * List your game library
 * Display your local shaders count & RyuSAK shaders count (to download them if you have fewer shaders)
 * Download and share shader caches through the Azure shader backend
@@ -37,12 +39,15 @@ Product keys and firmware download/install functionality have been removed from 
 
 ## Contributing
 Requirements:
-* NodeJS v14.20.0
+* Node.js
+* Git
 
 Install dependencies: `npm install --include=dev`
 
 Run local build: `npm start`
 
+Package a Windows build: `npm run build`
+
 ## Credits
+* Ecks1337 and contributors for the original RyuSAK project
 * CapitaineJSparrow for creating the original [emusak-ui](https://github.com/CapitaineJSparrow/emusak-ui) project
-* Ecchibitionist for hosting the firmware, saves, shaders and mods on his CDN
