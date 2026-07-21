@@ -35,6 +35,8 @@
   "addConfigEg": "e.g \"Portable\", \"Flatpak\"",
   "renameConfiguration": "Rename configuration",
   "renameConfigTitle": "Enter a new name for this configuration",
+  "changeConfigurationPath": "Change configuration path",
+  "changeConfigPathDescription": "Select the new Ryujinx or Ryubing data folder for this configuration.",
   "mode": "Mode",
   "readingDataPath": "RyuSAK is reading data from",
   "launchRyujinx": "<a href=\"https://ryujinx.app/download\" target=\"_blank\">Download Ryujinx</a> and launch any game first. All your games should show up here automatically after that. Please note, that only games launched in Ryujinx will be shown here. Ryujinx is not behind a paywall. If you are using a portable installation, use the \"Configuration\" button on the top left.",

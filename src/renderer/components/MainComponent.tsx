@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import FolderOpenOutlinedIcon from "@mui/icons-material/FolderOpenOutlined";
 import useTranslation from "../i18n/I18nService";
 import discord_logo from "../resources/discord_logo.png";
 
@@ -26,6 +27,7 @@ const MainComponent = () => {
     ryujinxConfigs,
     removeEmulatorConfigAction,
     renameEmulatorConfigAction,
+    changeEmulatorConfigPathAction,
     selectedConfig,
     setSelectConfigAction,
     addNewEmulatorConfigAction,
@@ -34,6 +36,7 @@ const MainComponent = () => {
     state.ryujinxConfigs,
     state.removeEmulatorConfigAction,
     state.renameEmulatorConfigAction,
+    state.changeEmulatorConfigPathAction,
     state.selectedConfig,
     state.setSelectConfigAction,
     state.addNewEmulatorConfigAction,
@@ -72,7 +75,7 @@ const MainComponent = () => {
         <Grid container spacing={2}>
           <Grid item xs={10} lg={11}>
             <Grid container spacing={0.5}>
-              <Grid item xs={10} lg={7}>
+              <Grid item xs={9} lg={7}>
                 <Tooltip placement="right" title={`${t("readingDataPath")} ${selectedConfig.path}`}>
                   <FormControl fullWidth>
                     <InputLabel id="emulator-select-path-label">{t("configuration")}</InputLabel>
@@ -96,6 +99,13 @@ const MainComponent = () => {
                 <Tooltip title={t("renameConfiguration")}>
                   <IconButton onClick={() => renameEmulatorConfigAction(selectedConfig.path)} color="primary">
                     <EditOutlinedIcon />
+                  </IconButton>
+                </Tooltip>
+              </Grid>
+              <Grid item xs={1} style={{ lineHeight: "52px" }}>
+                <Tooltip title={t("changeConfigurationPath")}>
+                  <IconButton onClick={() => changeEmulatorConfigPathAction(selectedConfig.path)} color="primary">
+                    <FolderOpenOutlinedIcon />
                   </IconButton>
                 </Tooltip>
               </Grid>

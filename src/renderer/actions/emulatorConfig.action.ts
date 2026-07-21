@@ -12,6 +12,7 @@ export interface IEmulatorConfig {
   setSelectConfigAction: (selectedConfig: RyujinxConfigMeta) => void,
   removeEmulatorConfigAction: (path: string) => void,
   renameEmulatorConfigAction: (path: string) => void,
+  changeEmulatorConfigPathAction: (path: string) => void,
   createDefaultConfig: () => void;
   emulatorGames: RyusakEmulatorGame[];
 }
@@ -113,6 +114,35 @@ const emulatorConfig = (set: SetState<IEmulatorConfig>, get: GetState<Partial<IA
 
     const updatedConfigs = configs.map(item => item.path === path ? { ...item, name } : item);
     const selectedConfig = updatedConfigs.find(item => item.path === path);
+    localStorage.setItem(LS_KEYS.CONFIG, JSON.stringify(updatedConfigs));
+    return set({ ryujinxConfigs: updatedConfigs, selectedConfig });
+  },
+  changeEmulatorConfigPathAction: async (path) => {
+    await Swal.fire({
+      icon: "info",
+      text: i18n.t("changeConfigPathDescription")
+    });
+
+    const response = await invokeIpc("get-directory");
+
+    if (typeof response === "object") {
+      get().openAlertAction("error", response.code);
+      return null;
+    }
+
+    if (response === path) {
+      return null;
+    }
+
+    const configs = get().ryujinxConfigs;
+    if (configs.find(item => item.path === response)) {
+      get().openAlertAction("error", "EMULATOR_PATH_ALREADY_EXISTS");
+      return null;
+    }
+
+    const updatedConfigs = configs.map(item => item.path === path ? { ...item, path: response } : item);
+    const selectedConfig = updatedConfigs.find(item => item.path === response);
+    localStorage.setItem("ryu-selected", response);
     localStorage.setItem(LS_KEYS.CONFIG, JSON.stringify(updatedConfigs));
     return set({ ryujinxConfigs: updatedConfigs, selectedConfig });
   },
