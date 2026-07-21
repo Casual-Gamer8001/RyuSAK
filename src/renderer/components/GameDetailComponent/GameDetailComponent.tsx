@@ -75,6 +75,7 @@ const GameDetailComponent = () => {
     mods,
     setCurrentModAction,
     ryujinxShaders,
+    ryujinxShaderVariants,
     downloadShadersAction,
     needRefreshShaders,
     shareShaders,
@@ -89,6 +90,7 @@ const GameDetailComponent = () => {
     state.mods,
     state.setCurrentModAction,
     state.ryujinxShaders,
+    state.ryujinxShaderVariants,
     state.downloadShadersAction,
     state.needRefreshShaders,
     state.shareShaders,
@@ -102,6 +104,7 @@ const GameDetailComponent = () => {
   const [compat, setCompat] = useState<GithubLabel[]>(null);
   const [_compatMode, setCompatMode] = useState<GithubIssue["mode"]>(null);
   const [localShadersCount, setLocalShadersCount] = useState(0);
+  const [localShaderCacheKey, setLocalShaderCacheKey] = useState<string>(null);
   const [customCoverUrl, setCustomCoverUrl] = useState("");
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -135,6 +138,7 @@ const GameDetailComponent = () => {
     refreshShaderIndexAction();
     invokeIpc("getRyujinxCompatibility", titleId).then(extractCompatibilityLabels);
     invokeIpc("count-shaders", titleId, dataPath, shadersMinVersion).then(setLocalShadersCount);
+    invokeIpc("get-shader-cache-key", titleId, dataPath).then(setLocalShaderCacheKey);
     setCustomCoverUrl(getJsonLocalStorage<{ [key: string]: string }>(LS_KEYS.COVER_OVERRIDES, {})[titleId] || "");
   }, [titleId, needRefreshShaders]);
 
@@ -313,7 +317,9 @@ const GameDetailComponent = () => {
 
   const hasMods = Enumerable.from(mods).any(mod => mod.name.includes(metaData.id));
   const hasSaves = Enumerable.from(saves).any(save => save.name.includes(metaData.id));
-  const ryusakShadersCount = ryujinxShaders[metaData.id] || 0;
+  const matchingShaderVariant = localShaderCacheKey ? ryujinxShaderVariants?.[metaData.id]?.[localShaderCacheKey] : null;
+  const ryusakShadersCount = matchingShaderVariant?.shaderCount || ryujinxShaders[metaData.id] || 0;
+  const ryusakShadersPath = matchingShaderVariant?.path;
 
   return (
     <Box p={3}>
@@ -475,7 +481,7 @@ const GameDetailComponent = () => {
                     variant="contained"
                     fullWidth
                     disabled={ryusakShadersCount === 0}
-                    onClick={() => downloadShadersAction(metaData.id, dataPath)}
+                    onClick={() => downloadShadersAction(metaData.id, dataPath, ryusakShadersPath)}
                   >
                     {t("dlShaders")}
                   </Button>

@@ -1,5 +1,5 @@
 import { ipcMain, BrowserWindow } from "electron";
-import loadComponentIpcHandler, { loadShaderIndexIpcHandler } from "./loadComponent.ipc";
+import loadComponentIpcHandler, { loadShaderIndexIpcHandler, loadShaderVariantsIpcHandler } from "./loadComponent.ipc";
 import {
   getRyujinxPath,
   scanGamesForConfig,
@@ -19,7 +19,7 @@ import {
   getModsVersions,
   getModsVersionsProps
 } from "./modsDownload";
-import { countShaders, countShadersProps, installShaders, installShadersProps, shareShaders } from "./shaders";
+import { countShaders, countShadersProps, getShaderCacheKey, installShaders, installShadersProps, shareShaders } from "./shaders";
 import { searchGameBanana, searchProps } from "./gamebanana";
 import { setGameIconSize, setProxy, setSteamGridDbApiKey } from "./settings.ipc";
 import searchSteamGridDbCovers, { steamGridDbCoverSearchProps } from "./steamgriddb";
@@ -27,6 +27,7 @@ import searchSteamGridDbCovers, { steamGridDbCoverSearchProps } from "./steamgri
 export type IPCCalls = {
   "load-components": Promise<ReturnType<typeof loadComponentIpcHandler>>,
   "load-shader-index": Promise<ReturnType<typeof loadShaderIndexIpcHandler>>,
+  "load-shader-variants": Promise<ReturnType<typeof loadShaderVariantsIpcHandler>>,
   "get-directory": Promise<ReturnType<typeof getDirectory>>,
   "scan-games": Promise<ReturnType<typeof scanGamesForConfig>>,
   "build-metadata-from-titleId": Promise<ReturnType<typeof EShopMetaService.getEShopMeta>>,
@@ -39,6 +40,7 @@ export type IPCCalls = {
   "get-mods-list-for-version": ReturnType<typeof getModsListForVersion>,
   "download-mod": ReturnType<typeof downloadMod>,
   "count-shaders": ReturnType<typeof countShaders>,
+  "get-shader-cache-key": ReturnType<typeof getShaderCacheKey>,
   "install-shaders": ReturnType<typeof installShaders>,
   "share-shaders": ReturnType<typeof shareShaders>,
   "search-gamebanana": ReturnType<typeof searchGameBanana>,
@@ -53,6 +55,7 @@ export type IPCCalls = {
 const makeIpcRoutes = (mainWindow: BrowserWindow) => {
   ipcMain.handle("load-components", async (_) => loadComponentIpcHandler());
   ipcMain.handle("load-shader-index", async (_) => loadShaderIndexIpcHandler());
+  ipcMain.handle("load-shader-variants", async (_) => loadShaderVariantsIpcHandler());
   ipcMain.handle("get-directory", async (_) => getDirectory(mainWindow));
   ipcMain.handle("scan-games", async (_, dataPath: string) => scanGamesForConfig(dataPath));
   ipcMain.handle("build-metadata-from-titleId", async (_, titleId: string, dataPath?: string) => EShopMetaService.getEShopMeta(titleId, dataPath));
@@ -65,6 +68,7 @@ const makeIpcRoutes = (mainWindow: BrowserWindow) => {
   ipcMain.handle("get-mods-list-for-version", async (_, ...args: getModsListForVersionProps) => getModsListForVersion(...args));
   ipcMain.handle("download-mod", async (_, ...args: downloadModProps) => downloadMod(mainWindow, ...args));
   ipcMain.handle("count-shaders", async (_, ...args: countShadersProps) => countShaders(...args));
+  ipcMain.handle("get-shader-cache-key", async (_, titleId: string, dataPath: string) => getShaderCacheKey(titleId, dataPath));
   ipcMain.handle("install-shaders", async (_, ...args: installShadersProps) => installShaders(mainWindow, ...args));
   ipcMain.handle("share-shaders", async (_, ...args: shareShaders) => shareShaders(mainWindow, ...args));
   ipcMain.handle("search-gamebanana", async (_, ...args: searchProps) => searchGameBanana(...args));

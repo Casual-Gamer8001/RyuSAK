@@ -10,7 +10,7 @@ import { MirrorUploadResponse } from "../../types";
 
 export type countShadersProps = [string, string, number];
 
-export type installShadersProps = [string, string];
+export type installShadersProps = [string, string, string?];
 
 export type shareShaders = [string, string, number, number];
 
@@ -42,15 +42,40 @@ export const countShaders = async (...args: countShadersProps): Promise<number> 
   return Math.max((stat.size - 32) / 8, 0);
 };
 
+export const getShaderCacheKey = async (titleId: string, dataPath: string): Promise<string> => {
+  const shaderCacheDir = path.resolve(dataPath, "games", titleId.toLowerCase(), "cache", "shader");
+  const guestTocFile = path.resolve(shaderCacheDir, "guest.toc");
+  const sharedTocFile = path.resolve(shaderCacheDir, "shared.toc");
+
+  if (!await fs.pathExists(guestTocFile) || !await fs.pathExists(sharedTocFile)) {
+    return null;
+  }
+
+  const guestToc = await fs.readFile(guestTocFile);
+  const sharedToc = await fs.readFile(sharedTocFile);
+  const guestMagic = guestToc.readUInt32LE(0);
+  const sharedMagic = sharedToc.readUInt32LE(0);
+
+  if (guestMagic !== 0x47434f54 || sharedMagic !== 0x53434f54) {
+    return null;
+  }
+
+  const guestVersionPacked = guestToc.readUInt32LE(4);
+  const sharedFormatVersionPacked = sharedToc.readUInt32LE(4);
+  const sharedCodeGenVersion = sharedToc.readUInt32LE(8);
+
+  return `guest-${guestVersionPacked}_shared-${sharedFormatVersionPacked}_codegen-${sharedCodeGenVersion}`;
+};
+
 export const installShaders = async (mainWindow: BrowserWindow, ...args: installShadersProps): Promise<boolean> => {
-  const [titleId, dataPath] = args;
+  const [titleId, dataPath, shaderPath] = args;
 
   const shaderCacheDir = path.resolve(dataPath, "games", titleId.toLowerCase(), "cache", "shader");
   await fs.ensureDir(shaderCacheDir);
   await fs.emptyDir(shaderCacheDir);
 
   const shaderCacheZipPath = path.resolve(shaderCacheDir, `${titleId}.zip`);
-  const result = await HttpService.getShadersZipWithProgress(titleId, shaderCacheZipPath, mainWindow);
+  const result = await HttpService.getShadersZipWithProgress(titleId, shaderCacheZipPath, mainWindow, shaderPath);
 
   if (!result) {
     return null;

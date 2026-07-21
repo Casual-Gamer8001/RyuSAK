@@ -6,7 +6,7 @@ import https from "https";
 import httpsProxyAgent from "https-proxy-agent";
 import fs from "fs-extra";
 import path from "path";
-import { MirrorDirMeta, PostShadersBody, RyusakShaders, GameBananaSearchGameResult, GameBananaSearchModResult } from "../../types";
+import { MirrorDirMeta, PostShadersBody, RyusakShaders, RyusakShaderVariants, GameBananaSearchGameResult, GameBananaSearchModResult } from "../../types";
 
 const USER_AGENT = `RyuSAK/${app.getVersion()}`;
 const CDN_URL = "https://mirror.lewd.wtf";
@@ -21,6 +21,8 @@ export enum HTTP_PATHS {
   SAVES_DOWNLOAD    = "/archive/nintendo/switch/savegames/{file_name}",
   SHADERS_LIST_PC   = "metadata/shader_count_spirv.json",
   SHADERS_LIST_MAC  = "metadata/shader_count_macos.json",
+  SHADERS_VARIANTS_PC = "metadata/shader_variants_spirv.json",
+  SHADERS_VARIANTS_MAC = "metadata/shader_variants_macos.json",
   SHADERS_MIN_VER   = "metadata/shader_min_version.txt",
   SHADERS_ZIP_PC    = "shaders/spirv/{title_id}.zip",
   SHADERS_ZIP_MAC   = "shaders/macos/{title_id}.zip",
@@ -174,9 +176,9 @@ class HttpService {
     }).catch(() => null);
   }
 
-  public async getShadersZipWithProgress(titleId: string, destPath: string, mainWindow: BrowserWindow) {
+  public async getShadersZipWithProgress(titleId: string, destPath: string, mainWindow: BrowserWindow, shaderPath?: string) {
     const shadersZipUrl = this.useMacUrl ? HTTP_PATHS.SHADERS_ZIP_MAC : HTTP_PATHS.SHADERS_ZIP_PC;
-    return this.getWithProgress(shadersZipUrl.replace("{title_id}", titleId), destPath, mainWindow, titleId, this.shaderRepositoryUrl);
+    return this.getWithProgress(shaderPath || shadersZipUrl.replace("{title_id}", titleId), destPath, mainWindow, titleId, this.shaderRepositoryUrl);
   }
 
   public async downloadRyujinxShaderList() {
@@ -184,6 +186,13 @@ class HttpService {
       ? HTTP_PATHS.SHADERS_LIST_MAC
       : HTTP_PATHS.SHADERS_LIST_PC
     ) as Promise<RyusakShaders>;
+  }
+
+  public async downloadRyujinxShaderVariants() {
+    return this.getFromShaderRepository(this.useMacUrl
+      ? HTTP_PATHS.SHADERS_VARIANTS_MAC
+      : HTTP_PATHS.SHADERS_VARIANTS_PC
+    ).catch(() => ({})) as Promise<RyusakShaderVariants>;
   }
 
   public async downloadSaveList() {

@@ -29,6 +29,19 @@ export type RyusakShaders = {
   [key: string]: number;
 };
 
+export type RyusakShaderVariant = {
+  shaderCount: number,
+  cacheKey: string,
+  isDefault: boolean,
+  path: string,
+};
+
+export type RyusakShaderVariants = {
+  [titleId: string]: {
+    [cacheKey: string]: RyusakShaderVariant
+  };
+};
+
 export type RyujinxConfigMeta = {
   path: string,
   name: string,

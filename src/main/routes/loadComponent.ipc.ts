@@ -1,7 +1,7 @@
 import HttpService from "../services/HttpService";
 import electron from "electron";
 import { SYS_SETTINGS } from "../../index";
-import { MirrorDirMeta, RyusakShaders } from "../../types";
+import { MirrorDirMeta, RyusakShaders, RyusakShaderVariants } from "../../types";
 
 const loadStartupResource = async <T>(name: string, promise: Promise<T>, fallback: T): Promise<T> => {
   try {
@@ -15,6 +15,7 @@ const loadStartupResource = async <T>(name: string, promise: Promise<T>, fallbac
 const loadComponentIpcHandler = async () => Promise.all([
   SYS_SETTINGS,
   loadStartupResource<RyusakShaders>("ryujinx shader list", HttpService.downloadRyujinxShaderList(), {}),
+  loadStartupResource<RyusakShaderVariants>("ryujinx shader variants", HttpService.downloadRyujinxShaderVariants(), {}),
   loadStartupResource<MirrorDirMeta>("save list", HttpService.downloadSaveList(), []),
   loadStartupResource<MirrorDirMeta>("mods title list", HttpService.downloadModsTitleList(), []),
   HttpService.getLatestApplicationVersion(),
@@ -26,3 +27,4 @@ const loadComponentIpcHandler = async () => Promise.all([
 export default loadComponentIpcHandler;
 
 export const loadShaderIndexIpcHandler = async () => loadStartupResource<RyusakShaders>("ryujinx shader list", HttpService.downloadRyujinxShaderList(), {});
+export const loadShaderVariantsIpcHandler = async () => loadStartupResource<RyusakShaderVariants>("ryujinx shader variants", HttpService.downloadRyujinxShaderVariants(), {});

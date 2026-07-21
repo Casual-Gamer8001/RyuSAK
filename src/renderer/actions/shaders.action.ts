@@ -8,7 +8,7 @@ import { invokeIpc } from "../utils";
 
 export interface IShaders {
   needRefreshShaders: boolean,
-  downloadShadersAction: (titleId: string, dataPath: string) => void,
+  downloadShadersAction: (titleId: string, dataPath: string, shaderPath?: string) => void,
   shareShaders: (titleId: string, dataPath: string, localShaderCount: number, ryusakCount: number) => void,
   refreshShaderIndexAction: () => Promise<void>,
 }
@@ -26,9 +26,10 @@ const createShadersSlice = (set: SetState<IShaders>): IShaders => ({
   needRefreshShaders: false,
   refreshShaderIndexAction: async () => {
     const ryujinxShaders = await invokeIpc("load-shader-index");
-    useStore.setState({ ryujinxShaders });
+    const ryujinxShaderVariants = await invokeIpc("load-shader-variants");
+    useStore.setState({ ryujinxShaders, ryujinxShaderVariants });
   },
-  downloadShadersAction: async (titleId, dataPath) => {
+  downloadShadersAction: async (titleId, dataPath, shaderPath) => {
     const state = useStore.getState();
 
     state.upsertFileAction({
@@ -42,7 +43,7 @@ const createShadersSlice = (set: SetState<IShaders>): IShaders => ({
     };
 
     ipcRenderer.on("download-progress", onShaderDownloadProgress);
-    const result = await invokeIpc("install-shaders", titleId, dataPath).catch(() => null);
+    const result = await invokeIpc("install-shaders", titleId, dataPath, shaderPath).catch(() => null);
     state.removeFileAction(titleId);
     ipcRenderer.removeListener("download-progress", onShaderDownloadProgress);
 

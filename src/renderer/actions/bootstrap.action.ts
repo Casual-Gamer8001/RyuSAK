@@ -1,5 +1,5 @@
 import { GetState, SetState } from "zustand/vanilla";
-import { MirrorDirMeta, RyusakShaders, LS_KEYS, Settings } from "../../types";
+import { MirrorDirMeta, RyusakShaders, RyusakShaderVariants, LS_KEYS, Settings } from "../../types";
 import { IDownloadManager } from "./downloadManager.action";
 import useTranslation from "../i18n/I18nService";
 import { invokeIpc } from "../utils";
@@ -12,6 +12,7 @@ interface IBootstrap {
   saves: MirrorDirMeta;
   mods: MirrorDirMeta;
   ryujinxShaders: RyusakShaders;
+  ryujinxShaderVariants: RyusakShaderVariants;
   bootstrapAppAction: () => Promise<void>;
   latestVersion?: string;
   currentVersion?: string;
@@ -28,6 +29,7 @@ const createBootstrapSlice = (set: SetState<IBootstrap>, get: GetState<IDownload
   saves: [],
   mods: [],
   ryujinxShaders: {},
+  ryujinxShaderVariants: {},
   latestVersion: null,
   currentVersion: null,
   threshold: -1,
@@ -40,6 +42,7 @@ const createBootstrapSlice = (set: SetState<IBootstrap>, get: GetState<IDownload
       const [
         settings,
         ryujinxShaders,
+        ryujinxShaderVariants,
         saves,
         mods,
         latestVersion,
@@ -79,6 +82,7 @@ const createBootstrapSlice = (set: SetState<IBootstrap>, get: GetState<IDownload
         saves,
         mods,
         ryujinxShaders,
+        ryujinxShaderVariants,
         latestVersion,
         currentVersion,
         threshold,
