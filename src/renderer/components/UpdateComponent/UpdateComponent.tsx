@@ -10,7 +10,12 @@ const UpdateComponent = ({ state }: { state: "downloading" | "downloaded" }) => 
   const [latestVersion, currentVersion] = useStore(state => [state.latestVersion, state.currentVersion]);
   const [manualUpdateOnly, setManualUpdateOnly] = useState(false);
   const [manualUpdatePromptShown, setManualUpdatePromptShown] = useState(false);
+  const forceManualUpdatePrompt = process.env.RYUSAK_FORCE_UPDATE_PROMPT === "1";
   const { t } = useTranslation();
+  const hasManualUpdate = manualUpdateOnly
+    && currentVersion
+    && latestVersion
+    && (forceManualUpdatePrompt || semver.lt(currentVersion, latestVersion));
 
   useEffect(() => {
     ipcRenderer.on("manual-update-only", () => setManualUpdateOnly(true));
@@ -28,7 +33,7 @@ const UpdateComponent = ({ state }: { state: "downloading" | "downloaded" }) => 
   }, [state]);
 
   useEffect(() => {
-    if (!manualUpdateOnly || !currentVersion || !latestVersion || !semver.lt(currentVersion, latestVersion) || manualUpdatePromptShown) {
+    if (!hasManualUpdate || manualUpdatePromptShown) {
       return;
     }
 
@@ -59,9 +64,9 @@ const UpdateComponent = ({ state }: { state: "downloading" | "downloaded" }) => 
         });
       }
     });
-  }, [manualUpdateOnly, currentVersion, latestVersion, manualUpdatePromptShown]);
+  }, [hasManualUpdate, currentVersion, latestVersion, manualUpdatePromptShown]);
 
-  if ((process.platform !== "win32" || manualUpdateOnly) && currentVersion && latestVersion && semver.lt(currentVersion, latestVersion)) {
+  if ((process.platform !== "win32" || manualUpdateOnly) && hasManualUpdate) {
     return <Box p={2} pb={0}>
       <Alert severity="info">
         You have version v{currentVersion}, please consider updating to the latest version from <a href="https://github.com/Casual-Gamer8001/RyuSAK/releases/latest" target="_blank">GitHub</a> (v{ latestVersion })
