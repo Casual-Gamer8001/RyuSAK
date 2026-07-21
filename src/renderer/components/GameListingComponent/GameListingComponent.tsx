@@ -51,6 +51,11 @@ const Cover = styled(Box)(() => ({
   backgroundSize: "cover",
 }));
 
+const gameIconSizeValues = [90, 95, 105, 120, 135, 155, 180, 210, 245, 285, 330, 360];
+
+const closestGameIconSize = (value: number) => gameIconSizeValues
+  .reduce((closest, size) => Math.abs(size - value) < Math.abs(closest - value) ? size : closest, gameIconSizeValues[0]);
+
 const gameIconSizeValue = (value: string) => {
   const legacySizes: { [key: string]: number } = {
     extraSmall: 90,
@@ -59,7 +64,7 @@ const gameIconSizeValue = (value: string) => {
     large: 360,
   };
   const numericValue = Number(value);
-  return Number.isFinite(numericValue) ? Math.min(Math.max(numericValue, 90), 360) : legacySizes[value] || 180;
+  return Number.isFinite(numericValue) ? closestGameIconSize(numericValue) : legacySizes[value] || 180;
 };
 
 const GameListingComponent = ({ config }: IConfigContainer) => {
@@ -178,7 +183,8 @@ const GameListingComponent = ({ config }: IConfigContainer) => {
         sx={{
           display: "grid",
           gap: 2,
-          gridTemplateColumns: `repeat(auto-fill, minmax(${gameIconSize}px, 1fr))`,
+          gridTemplateColumns: `repeat(auto-fill, ${gameIconSize}px)`,
+          justifyContent: "start",
         }}
       >
         {

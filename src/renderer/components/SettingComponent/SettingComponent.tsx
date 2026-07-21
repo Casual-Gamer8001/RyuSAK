@@ -20,6 +20,11 @@ import useStore from "../../actions/state";
 import { LS_KEYS } from "../../../types";
 import { LANGUAGES } from "../../app";
 
+const gameIconSizeMarks = [90, 95, 105, 120, 135, 155, 180, 210, 245, 285, 330, 360];
+
+const closestGameIconSize = (value: number) => gameIconSizeMarks
+  .reduce((closest, size) => Math.abs(size - value) < Math.abs(closest - value) ? size : closest, gameIconSizeMarks[0]);
+
 const gameIconSizeValue = (value: string) => {
   const legacySizes: { [key: string]: number } = {
     extraSmall: 90,
@@ -28,7 +33,7 @@ const gameIconSizeValue = (value: string) => {
     large: 360,
   };
   const numericValue = Number(value);
-  return Number.isFinite(numericValue) ? numericValue : legacySizes[value] || 180;
+  return Number.isFinite(numericValue) ? closestGameIconSize(numericValue) : legacySizes[value] || 180;
 };
 
 const SettingComponent = () => {
@@ -86,19 +91,14 @@ const SettingComponent = () => {
           {t("gameIconSize")}: {gameIconSize}px
         </Typography>
         <Slider
-          min={90}
-          max={360}
-          step={5}
-          marks={[
-            { value: 90, label: t("gameIconSizeExtraSmall") },
-            { value: 180, label: t("gameIconSizeSmall") },
-            { value: 270, label: t("gameIconSizeMedium") },
-            { value: 360, label: t("gameIconSizeLarge") },
-          ]}
+          min={gameIconSizeMarks[0]}
+          max={gameIconSizeMarks[gameIconSizeMarks.length - 1]}
+          step={null}
+          marks={gameIconSizeMarks.map(value => ({ value }))}
           value={gameIconSize}
           valueLabelDisplay="auto"
           onChange={async (_, value) => {
-            const nextValue = Array.isArray(value) ? value[0] : value;
+            const nextValue = closestGameIconSize(Array.isArray(value) ? value[0] : value);
             setGameIconSize(nextValue);
             await setGameIconSizeAction(`${nextValue}`);
           }}
