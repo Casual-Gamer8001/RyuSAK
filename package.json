@@ -3,7 +3,7 @@
     "productName":  "RyuSAK",
     "version":  "1.7.0",
     "description":  "RyuSAK",
-    "repository":  "https://github.com/Ecks1337/RyuSAK",
+    "repository":  "https://github.com/Casual-Gamer8001/RyuSAK",
     "main":  ".webpack/main",
     "scripts":  {
                     "start":  "electron-forge start",

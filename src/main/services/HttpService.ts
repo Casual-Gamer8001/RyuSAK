@@ -30,7 +30,7 @@ export enum HTTP_PATHS {
 }
 
 export enum OTHER_URLS {
-  RELEASE_INFO            = "https://api.github.com/repos/Ecks1337/RyuSAK/releases/latest",
+  RELEASE_INFO            = "https://api.github.com/repos/Casual-Gamer8001/RyuSAK/releases/latest",
   COMPAT_CSV              = "https://git.ryujinx.app/projects/Ryubing/raw/branch/master/docs/compatibility.csv",
   ESHOP_DATA              = "https://ryusak-shader-backend.azurewebsites.net/metadata/titles.US.en.json",
   GAME_BANANA_SEARCH_GAME = "https://api.gamebanana.com/Core/List/Like?itemtype=Game&field=name&match={match}",

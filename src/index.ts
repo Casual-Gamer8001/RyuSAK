@@ -11,6 +11,8 @@ import fs from "fs-extra";
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 
 export const hasPortableFile = fs.existsSync(path.resolve(app.getPath("exe"), "..", "portable"));
+const squirrelUpdateExe = path.resolve(app.getPath("exe"), "..", "..", "Update.exe");
+const hasSquirrelUpdater = process.platform === "win32" && fs.existsSync(squirrelUpdateExe);
 export const cacheDir = hasPortableFile ? path.resolve(app.getPath("exe"), "..", "electron_cache") : path.join(app.getPath("userData"));
 export const proxyFile = path.resolve(cacheDir, "proxy");
 export const steamGridDbApiKeyFile = path.resolve(cacheDir, "steamgriddb-api-key");
@@ -122,11 +124,11 @@ const createWindow = (): void => {
     mainWindow.center();
     mainWindow.show();
 
-    if (hasPortableFile) {
-      mainWindow.webContents.send("is-portable");
+    if (hasPortableFile || !hasSquirrelUpdater) {
+      mainWindow.webContents.send("manual-update-only");
     }
     else if (!isDev && process.platform === "win32") {
-      const feed = `https://update.electronjs.org/Ecks1337/RyuSAK/${process.platform}-${process.arch}/${app.getVersion()}`;
+      const feed = `https://update.electronjs.org/Casual-Gamer8001/RyuSAK/${process.platform}-${process.arch}/${app.getVersion()}`;
 
       autoUpdater.setFeedURL({
         url: feed
