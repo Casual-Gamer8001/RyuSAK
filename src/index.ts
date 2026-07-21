@@ -15,6 +15,7 @@ declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 export const hasPortableFile = fs.existsSync(path.resolve(app.getPath("exe"), "..", "portable"));
 const squirrelUpdateExe = path.resolve(app.getPath("exe"), "..", "..", "Update.exe");
 const hasSquirrelUpdater = process.platform === "win32" && fs.existsSync(squirrelUpdateExe);
+const forceManualUpdatePrompt = process.argv.includes("--force-update-prompt");
 export const cacheDir = hasPortableFile ? path.resolve(app.getPath("exe"), "..", "electron_cache") : path.join(app.getPath("userData"));
 export const proxyFile = path.resolve(cacheDir, "proxy");
 export const steamGridDbApiKeyFile = path.resolve(cacheDir, "steamgriddb-api-key");
@@ -90,11 +91,43 @@ ipcMain.handle("install-manual-update", async () => {
 
     const script = [
       "$ErrorActionPreference = \"Stop\"",
-      "Wait-Process -Id " + process.pid + " -ErrorAction SilentlyContinue",
       `$installer = ${shellQuote(installerPath)}`,
       `$arguments = @(${installerArgs.map(shellQuote).join(", ")})`,
-      "Start-Process -FilePath $installer -ArgumentList $arguments -Wait",
-      `Start-Process -FilePath ${shellQuote(relaunchExe)}`,
+      `$relaunchExe = ${shellQuote(relaunchExe)}`,
+      "Add-Type -AssemblyName System.Windows.Forms",
+      "Add-Type -AssemblyName System.Drawing",
+      "$form = New-Object System.Windows.Forms.Form",
+      "$form.Text = \"Updating RyuSAK\"",
+      "$form.Width = 420",
+      "$form.Height = 150",
+      "$form.StartPosition = \"CenterScreen\"",
+      "$form.FormBorderStyle = \"FixedDialog\"",
+      "$form.ControlBox = $false",
+      "$label = New-Object System.Windows.Forms.Label",
+      "$label.Text = \"Preparing update...\"",
+      "$label.AutoSize = $true",
+      "$label.Left = 24",
+      "$label.Top = 22",
+      "$progress = New-Object System.Windows.Forms.ProgressBar",
+      "$progress.Style = \"Marquee\"",
+      "$progress.MarqueeAnimationSpeed = 30",
+      "$progress.Left = 24",
+      "$progress.Top = 58",
+      "$progress.Width = 360",
+      "$progress.Height = 24",
+      "$form.Controls.Add($label)",
+      "$form.Controls.Add($progress)",
+      "$form.Show()",
+      "[System.Windows.Forms.Application]::DoEvents()",
+      "Wait-Process -Id " + process.pid + " -ErrorAction SilentlyContinue",
+      "$label.Text = \"Installing update...\"",
+      "[System.Windows.Forms.Application]::DoEvents()",
+      "$installerProcess = Start-Process -FilePath $installer -ArgumentList $arguments -PassThru",
+      "while (-not $installerProcess.HasExited) { [System.Windows.Forms.Application]::DoEvents(); Start-Sleep -Milliseconds 100 }",
+      "$label.Text = \"Restarting RyuSAK...\"",
+      "[System.Windows.Forms.Application]::DoEvents()",
+      "Start-Process -FilePath $relaunchExe",
+      "$form.Close()",
       `Remove-Item -LiteralPath ${shellQuote(scriptPath)} -Force -ErrorAction SilentlyContinue`
     ].join("\r\n");
 
@@ -210,6 +243,9 @@ const createWindow = (): void => {
 
     if (hasPortableFile || !hasSquirrelUpdater) {
       mainWindow.webContents.send("manual-update-only");
+    }
+    if (forceManualUpdatePrompt) {
+      mainWindow.webContents.send("force-manual-update-prompt");
     }
     else if (!isDev && process.platform === "win32") {
       const feed = `https://update.electronjs.org/Casual-Gamer8001/RyuSAK/${process.platform}-${process.arch}/${app.getVersion()}`;
