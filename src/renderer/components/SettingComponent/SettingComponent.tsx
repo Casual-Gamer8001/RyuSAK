@@ -12,12 +12,24 @@ import {
   InputLabel,
   FormControl,
   Link,
+  Slider,
   Typography
 } from "@mui/material";
 import useTranslation from "../../i18n/I18nService";
 import useStore from "../../actions/state";
 import { LS_KEYS } from "../../../types";
 import { LANGUAGES } from "../../app";
+
+const gameIconSizeValue = (value: string) => {
+  const legacySizes: { [key: string]: number } = {
+    extraSmall: 90,
+    small: 180,
+    medium: 270,
+    large: 360,
+  };
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) ? numericValue : legacySizes[value] || 180;
+};
 
 const SettingComponent = () => {
   const { t } = useTranslation();
@@ -38,7 +50,7 @@ const SettingComponent = () => {
   const [open, setOpen] = useState(false);
   const [proxy, setProxy] = useState(settings.proxy);
   const [steamGridDbApiKey, setSteamGridDbApiKey] = useState(settings.steamGridDbApiKey || "");
-  const [gameIconSize, setGameIconSize] = useState(settings.gameIconSize || "small");
+  const [gameIconSize, setGameIconSize] = useState(gameIconSizeValue(settings.gameIconSize || "180"));
   const [locale, setLocale] = useState(localStorage.getItem(LS_KEYS.LOCALE) ?? "en");
 
   const handleClose = () =>
@@ -47,7 +59,7 @@ const SettingComponent = () => {
   const handleSave = async () => {
     await setProxyAction(proxy);
     await setSteamGridDbApiKeyAction(steamGridDbApiKey);
-    await setGameIconSizeAction(gameIconSize);
+    await setGameIconSizeAction(`${gameIconSize}`);
     await setLocaleAction(locale);
 
     setOpen(false);
@@ -70,15 +82,27 @@ const SettingComponent = () => {
             https://www.steamgriddb.com/profile/preferences/api
           </Link>
         </Typography>
-        <FormControl sx={{ mt: 3 }} fullWidth>
-          <InputLabel id="game-icon-size-label">{t("gameIconSize")}</InputLabel>
-          <Select labelId="game-icon-size-label" label={t("gameIconSize")} value={gameIconSize} onChange={(e) => setGameIconSize(e.target.value)}>
-            <MenuItem value="extraSmall">{t("gameIconSizeExtraSmall")}</MenuItem>
-            <MenuItem value="small">{t("gameIconSizeSmall")}</MenuItem>
-            <MenuItem value="medium">{t("gameIconSizeMedium")}</MenuItem>
-            <MenuItem value="large">{t("gameIconSizeLarge")}</MenuItem>
-          </Select>
-        </FormControl>
+        <Typography sx={{ mt: 3 }} gutterBottom>
+          {t("gameIconSize")}: {gameIconSize}px
+        </Typography>
+        <Slider
+          min={90}
+          max={360}
+          step={5}
+          marks={[
+            { value: 90, label: t("gameIconSizeExtraSmall") },
+            { value: 180, label: t("gameIconSizeSmall") },
+            { value: 270, label: t("gameIconSizeMedium") },
+            { value: 360, label: t("gameIconSizeLarge") },
+          ]}
+          value={gameIconSize}
+          valueLabelDisplay="auto"
+          onChange={async (_, value) => {
+            const nextValue = Array.isArray(value) ? value[0] : value;
+            setGameIconSize(nextValue);
+            await setGameIconSizeAction(`${nextValue}`);
+          }}
+        />
         <FormControl sx={{ mt: 3, mb: 1 }} fullWidth>
           <InputLabel id="locale-label">{t("locale")}</InputLabel>
           <Select labelId="locale-label" label={t("locale")} value={locale} onChange={(e) => setLocale(e.target.value)}>

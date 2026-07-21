@@ -39,7 +39,10 @@ export const setSteamGridDbApiKey = async (steamGridDbApiKey: string) => {
 
 export const setGameIconSize = async (gameIconSize: string) => {
   try {
-    const value = ["extraSmall", "small", "medium", "large"].includes(gameIconSize) ? gameIconSize : "small";
+    const numericValue = Number(gameIconSize);
+    const value = Number.isFinite(numericValue)
+      ? `${Math.min(Math.max(Math.round(numericValue), 90), 360)}`
+      : "180";
     await fs.writeFile(gameIconSizeFile, value);
     SYS_SETTINGS.gameIconSize = value;
 

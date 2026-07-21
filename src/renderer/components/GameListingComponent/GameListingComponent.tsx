@@ -51,11 +51,15 @@ const Cover = styled(Box)(() => ({
   backgroundSize: "cover",
 }));
 
-const gameIconGridSizes: { [key: string]: number } = {
-  extraSmall: 1,
-  small: 2,
-  medium: 3,
-  large: 4
+const gameIconSizeValue = (value: string) => {
+  const legacySizes: { [key: string]: number } = {
+    extraSmall: 90,
+    small: 180,
+    medium: 270,
+    large: 360,
+  };
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) ? Math.min(Math.max(numericValue, 90), 360) : legacySizes[value] || 180;
 };
 
 const GameListingComponent = ({ config }: IConfigContainer) => {
@@ -70,7 +74,7 @@ const GameListingComponent = ({ config }: IConfigContainer) => {
   const [filteredGames, setFilteredGames] = useState<typeof games>([]);
   const [showHiddenGames, setShowHiddenGames] = useState(false);
   const [hiddenGames, setHiddenGames] = useState<string[]>([]);
-  const gameIconGridSize = gameIconGridSizes[settings.gameIconSize || "small"] || gameIconGridSizes.small;
+  const gameIconSize = gameIconSizeValue(settings.gameIconSize || "180");
 
   // 1. Scan games on user system
   // 2. Build metadata from eshop with titleId as argument
@@ -169,22 +173,29 @@ const GameListingComponent = ({ config }: IConfigContainer) => {
           <Button onClick={refreshLibrary} startIcon={<RefreshIcon />} variant="outlined" fullWidth>{t("refresh")}</Button>
         </Grid>
       </Grid>
-      <Grid container spacing={2} pr={4}>
+      <Box
+        pr={4}
+        sx={{
+          display: "grid",
+          gap: 2,
+          gridTemplateColumns: `repeat(auto-fill, minmax(${gameIconSize}px, 1fr))`,
+        }}
+      >
         {
           filteredGames
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((item, index) => (
-              <Grid tabIndex={index} className="game" item xs={gameIconGridSize} onClick={() => onGameDetailClick(item.id)} style={{ cursor: "pointer" }} key={index}>
+              <Box tabIndex={index} className="game" onClick={() => onGameDetailClick(item.id)} style={{ cursor: "pointer" }} key={index}>
                 <Tooltip arrow placement="top" title={item.name}>
                   <div>
                     <Label>{hiddenGames.includes(item.id.toUpperCase()) ? `${item.name} (${t("hidden")})` : item.name}</Label>
                     <Cover style={{ opacity: hiddenGames.includes(item.id.toUpperCase()) ? 0.45 : 1, backgroundImage: `url(${coverUrls[item.id] || `${coverRepositoryUrl}/${item.id}.svg?name=${encodeURIComponent(item.name)}`})` }} />
                   </div>
                 </Tooltip>
-              </Grid>
+              </Box>
             ))
         }
-      </Grid>
+      </Box>
     </Stack>
   );
 };

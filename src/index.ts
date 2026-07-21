@@ -18,7 +18,7 @@ export const gameIconSizeFile = path.resolve(cacheDir, "game-icon-size");
 export const SYS_SETTINGS = {
   proxy: readFile(proxyFile),
   steamGridDbApiKey: readFile(steamGridDbApiKeyFile),
-  gameIconSize: readFile(gameIconSizeFile) || "small",
+  gameIconSize: readFile(gameIconSizeFile) || "180",
 };
 let updateDownloaded = false;
 
