@@ -183,15 +183,14 @@ const GameListingComponent = ({ config }: IConfigContainer) => {
         sx={{
           display: "grid",
           gap: 2,
-          gridTemplateColumns: `repeat(auto-fill, ${gameIconSize}px)`,
-          justifyContent: "start",
+          gridTemplateColumns: `repeat(auto-fill, minmax(${gameIconSize}px, 1fr))`,
         }}
       >
         {
           filteredGames
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((item, index) => (
-              <Box tabIndex={index} className="game" onClick={() => onGameDetailClick(item.id)} style={{ cursor: "pointer" }} key={index}>
+              <Box tabIndex={index} className="game" onClick={() => onGameDetailClick(item.id)} sx={{ cursor: "pointer", justifySelf: "center", maxWidth: `${gameIconSize + 40}px`, width: "100%" }} key={index}>
                 <Tooltip arrow placement="top" title={item.name}>
                   <div>
                     <Label>{hiddenGames.includes(item.id.toUpperCase()) ? `${item.name} (${t("hidden")})` : item.name}</Label>
