@@ -25,6 +25,8 @@ const gameIconSizeMarks = [90, 95, 105, 120, 135, 155, 180, 210, 245, 285, 330, 
 const closestGameIconSize = (value: number) => gameIconSizeMarks
   .reduce((closest, size) => Math.abs(size - value) < Math.abs(closest - value) ? size : closest, gameIconSizeMarks[0]);
 
+const gameIconSizeIndex = (value: number) => gameIconSizeMarks.indexOf(closestGameIconSize(value));
+
 const gameIconSizeValue = (value: string) => {
   const legacySizes: { [key: string]: number } = {
     extraSmall: 90,
@@ -91,14 +93,16 @@ const SettingComponent = () => {
           {t("gameIconSize")}: {gameIconSize}px
         </Typography>
         <Slider
-          min={gameIconSizeMarks[0]}
-          max={gameIconSizeMarks[gameIconSizeMarks.length - 1]}
-          step={null}
-          marks={gameIconSizeMarks.map(value => ({ value }))}
-          value={gameIconSize}
+          min={0}
+          max={gameIconSizeMarks.length - 1}
+          step={1}
+          marks={gameIconSizeMarks.map((size, value) => ({ value, label: `${size}` }))}
+          value={gameIconSizeIndex(gameIconSize)}
           valueLabelDisplay="auto"
+          valueLabelFormat={(value) => `${gameIconSizeMarks[value]}px`}
           onChange={async (_, value) => {
-            const nextValue = closestGameIconSize(Array.isArray(value) ? value[0] : value);
+            const nextIndex = Array.isArray(value) ? value[0] : value;
+            const nextValue = gameIconSizeMarks[nextIndex];
             setGameIconSize(nextValue);
             await setGameIconSizeAction(`${nextValue}`);
           }}
