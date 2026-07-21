@@ -3,6 +3,7 @@ import useStore from "../actions/state";
 import GameListingComponent from "./GameListingComponent/GameListingComponent";
 import SettingComponent from "./SettingComponent/SettingComponent";
 import {
+  Box,
   Container,
   FormControl,
   Grid,
@@ -95,29 +96,29 @@ const MainComponent = () => {
                   </FormControl>
                 </Tooltip>
               </Grid>
-              <Grid item xs={1} style={{ lineHeight: "52px" }}>
-                <Tooltip title={t("renameConfiguration")}>
-                  <IconButton onClick={() => renameEmulatorConfigAction(selectedConfig.path)} color="primary">
-                    <EditOutlinedIcon />
-                  </IconButton>
-                </Tooltip>
-              </Grid>
-              <Grid item xs={1} style={{ lineHeight: "52px" }}>
-                <Tooltip title={t("changeConfigurationPath")}>
-                  <IconButton onClick={() => changeEmulatorConfigPathAction(selectedConfig.path)} color="primary">
-                    <FolderOpenOutlinedIcon />
-                  </IconButton>
-                </Tooltip>
-              </Grid>
-              {
-                (!selectedConfig.isDefault) && (
-                  <Grid item xs={1} style={{ lineHeight: "52px" }}>
-                    <IconButton onClick={() => removeEmulatorConfigAction(selectedConfig.path)} color="error">
-                      <DeleteOutlineOutlinedIcon />
+              <Grid item xs={3} lg={3}>
+                <Box sx={{ alignItems: "center", display: "flex", gap: 0.25, height: "52px" }}>
+                  <Tooltip title={t("renameConfiguration")}>
+                    <IconButton onClick={() => renameEmulatorConfigAction(selectedConfig.path)} color="primary" size="small">
+                      <EditOutlinedIcon />
                     </IconButton>
-                  </Grid>
-                )
-              }
+                  </Tooltip>
+                  <Tooltip title={t("changeConfigurationPath")}>
+                    <IconButton onClick={() => changeEmulatorConfigPathAction(selectedConfig.path)} color="primary" size="small">
+                      <FolderOpenOutlinedIcon />
+                    </IconButton>
+                  </Tooltip>
+                  {
+                    (!selectedConfig.isDefault) && (
+                      <Tooltip title={t("deleteConfiguration")}>
+                        <IconButton onClick={() => removeEmulatorConfigAction(selectedConfig.path)} color="error" size="small">
+                          <DeleteOutlineOutlinedIcon />
+                        </IconButton>
+                      </Tooltip>
+                    )
+                  }
+                </Box>
+              </Grid>
             </Grid>
           </Grid>
           <Grid item style={{ lineHeight: "52px" }} xs={2} lg={1}>
