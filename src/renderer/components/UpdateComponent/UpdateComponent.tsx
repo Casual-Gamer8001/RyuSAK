@@ -9,10 +9,12 @@ import semver from "semver";
 const UpdateComponent = ({ state }: { state: "downloading" | "downloaded" }) => {
   const [latestVersion, currentVersion] = useStore(state => [state.latestVersion, state.currentVersion]);
   const [manualUpdateOnly, setManualUpdateOnly] = useState(false);
+  const [manualUpdatePromptShown, setManualUpdatePromptShown] = useState(false);
   const { t } = useTranslation();
 
   useEffect(() => {
     ipcRenderer.on("manual-update-only", () => setManualUpdateOnly(true));
+    ipcRenderer.invoke("is-manual-update-only").then(setManualUpdateOnly);
   }, [manualUpdateOnly]);
 
   useEffect(() => {
@@ -24,6 +26,40 @@ const UpdateComponent = ({ state }: { state: "downloading" | "downloaded" }) => 
       }).then(({ value }) => value && ipcRenderer.send("reboot-after-download"));
     }
   }, [state]);
+
+  useEffect(() => {
+    if (!manualUpdateOnly || !currentVersion || !latestVersion || !semver.lt(currentVersion, latestVersion) || manualUpdatePromptShown) {
+      return;
+    }
+
+    setManualUpdatePromptShown(true);
+    Swal.fire({
+      icon: "info",
+      title: t("updateAvailableTitle"),
+      text: t("updateAvailableManual").replace("{currentVersion}", currentVersion).replace("{latestVersion}", latestVersion),
+      showCancelButton: true,
+      confirmButtonText: t("updateNow"),
+      cancelButtonText: t("updateLater"),
+      allowOutsideClick: false
+    }).then(async ({ isConfirmed }) => {
+      if (!isConfirmed) return;
+
+      Swal.fire({
+        title: t("update_downloading"),
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      const result = await ipcRenderer.invoke("install-manual-update");
+      if (result?.ok === false) {
+        Swal.fire({
+          icon: "error",
+          title: t("updateFailed"),
+          text: result.error || t("FETCH_FAILED")
+        });
+      }
+    });
+  }, [manualUpdateOnly, currentVersion, latestVersion, manualUpdatePromptShown]);
 
   if ((process.platform !== "win32" || manualUpdateOnly) && currentVersion && latestVersion && semver.lt(currentVersion, latestVersion)) {
     return <Box p={2} pb={0}>
