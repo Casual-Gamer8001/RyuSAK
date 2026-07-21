@@ -10,7 +10,7 @@ const UpdateComponent = ({ state }: { state: "downloading" | "downloaded" }) => 
   const [latestVersion, currentVersion] = useStore(state => [state.latestVersion, state.currentVersion]);
   const [manualUpdateOnly, setManualUpdateOnly] = useState(false);
   const [manualUpdatePromptShown, setManualUpdatePromptShown] = useState(false);
-  const forceManualUpdatePrompt = process.env.RYUSAK_FORCE_UPDATE_PROMPT === "1";
+  const [forceManualUpdatePrompt, setForceManualUpdatePrompt] = useState(false);
   const { t } = useTranslation();
   const hasManualUpdate = manualUpdateOnly
     && currentVersion
@@ -19,6 +19,7 @@ const UpdateComponent = ({ state }: { state: "downloading" | "downloaded" }) => 
 
   useEffect(() => {
     ipcRenderer.on("manual-update-only", () => setManualUpdateOnly(true));
+    ipcRenderer.on("force-manual-update-prompt", () => setForceManualUpdatePrompt(true));
     ipcRenderer.invoke("is-manual-update-only").then(setManualUpdateOnly);
   }, [manualUpdateOnly]);
 
