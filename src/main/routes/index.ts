@@ -10,17 +10,15 @@ import getDirectory from "./getDirectory.ipc";
 import EShopMetaService from "../services/EShopMetaService";
 import openFolderForGame, { openFolderIPCProps } from "./openFolderForGame";
 import ryujinxCompatibility, { ryujinxCompatibilityProps } from "./ryujinxCompatibility";
-import savesDownloads from "./savesDownload";
-import {
-  downloadMod,
-  downloadModProps,
-  getModsListForVersion,
-  getModsListForVersionProps,
-  getModsVersions,
-  getModsVersionsProps
-} from "./modsDownload";
+import downloadCommunitySave from "./savesDownload";
 import { countShaders, countShadersProps, getShaderCacheKey, installShaders, installShadersProps, shareShaders } from "./shaders";
 import { searchGameBanana, searchProps } from "./gamebanana";
+import {
+  getGameBananaModFiles,
+  getGameBananaModFilesProps,
+  installGameBananaMod,
+  installGameBananaModProps
+} from "./gamebananaInstall";
 import { setGameIconSize, setProxy, setSteamGridDbApiKey } from "./settings.ipc";
 import searchSteamGridDbCovers, { steamGridDbCoverSearchProps } from "./steamgriddb";
 
@@ -35,15 +33,14 @@ export type IPCCalls = {
   "update-eshop-data": ReturnType<typeof EShopMetaService.updateEShopData>,
   "openFolderForGame": ReturnType<typeof openFolderForGame>,
   "getRyujinxCompatibility": ReturnType<typeof ryujinxCompatibility>,
-  "downloadSave": ReturnType<typeof savesDownloads>,
-  "get-mods-versions": ReturnType<typeof getModsVersions>,
-  "get-mods-list-for-version": ReturnType<typeof getModsListForVersion>,
-  "download-mod": ReturnType<typeof downloadMod>,
+  "download-community-save": ReturnType<typeof downloadCommunitySave>,
   "count-shaders": ReturnType<typeof countShaders>,
   "get-shader-cache-key": ReturnType<typeof getShaderCacheKey>,
   "install-shaders": ReturnType<typeof installShaders>,
   "share-shaders": ReturnType<typeof shareShaders>,
   "search-gamebanana": ReturnType<typeof searchGameBanana>,
+  "get-gamebanana-mod-files": ReturnType<typeof getGameBananaModFiles>,
+  "install-gamebanana-mod": ReturnType<typeof installGameBananaMod>,
   "search-steamgriddb-covers": ReturnType<typeof searchSteamGridDbCovers>,
   "delete-game": ReturnType<typeof deleteGame>,
   "set-proxy": ReturnType<typeof setProxy>,
@@ -63,15 +60,14 @@ const makeIpcRoutes = (mainWindow: BrowserWindow) => {
   ipcMain.handle("update-eshop-data", async () => EShopMetaService.updateEShopData());
   ipcMain.handle("openFolderForGame", async (_, ...args: openFolderIPCProps) => openFolderForGame(...args));
   ipcMain.handle("getRyujinxCompatibility", async (_, ...args: ryujinxCompatibilityProps) => ryujinxCompatibility(...args));
-  ipcMain.handle("downloadSave", async (_, fileName: string) => savesDownloads(fileName));
-  ipcMain.handle("get-mods-versions", async (_, ...args: getModsVersionsProps) => getModsVersions(...args));
-  ipcMain.handle("get-mods-list-for-version", async (_, ...args: getModsListForVersionProps) => getModsListForVersion(...args));
-  ipcMain.handle("download-mod", async (_, ...args: downloadModProps) => downloadMod(mainWindow, ...args));
+  ipcMain.handle("download-community-save", async (_, fileName: string) => downloadCommunitySave(fileName));
   ipcMain.handle("count-shaders", async (_, ...args: countShadersProps) => countShaders(...args));
   ipcMain.handle("get-shader-cache-key", async (_, titleId: string, dataPath: string) => getShaderCacheKey(titleId, dataPath));
   ipcMain.handle("install-shaders", async (_, ...args: installShadersProps) => installShaders(mainWindow, ...args));
   ipcMain.handle("share-shaders", async (_, ...args: shareShaders) => shareShaders(mainWindow, ...args));
   ipcMain.handle("search-gamebanana", async (_, ...args: searchProps) => searchGameBanana(...args));
+  ipcMain.handle("get-gamebanana-mod-files", async (_, ...args: getGameBananaModFilesProps) => getGameBananaModFiles(...args));
+  ipcMain.handle("install-gamebanana-mod", async (_, ...args: installGameBananaModProps) => installGameBananaMod(mainWindow, ...args));
   ipcMain.handle("search-steamgriddb-covers", async (_, ...args: steamGridDbCoverSearchProps) => searchSteamGridDbCovers(...args));
   ipcMain.handle("delete-game", (_, ...args: deleteGameProps) => deleteGame(...args));
   ipcMain.handle("set-proxy", async (_, proxy: string) => setProxy(proxy));

@@ -18,10 +18,18 @@ const UpdateComponent = ({ state }: { state: "downloading" | "downloaded" }) => 
     && (forceManualUpdatePrompt || semver.lt(currentVersion, latestVersion));
 
   useEffect(() => {
-    ipcRenderer.on("manual-update-only", () => setManualUpdateOnly(true));
-    ipcRenderer.on("force-manual-update-prompt", () => setForceManualUpdatePrompt(true));
+    const handleManualUpdateOnly = () => setManualUpdateOnly(true);
+    const handleForceManualUpdatePrompt = () => setForceManualUpdatePrompt(true);
+
+    ipcRenderer.on("manual-update-only", handleManualUpdateOnly);
+    ipcRenderer.on("force-manual-update-prompt", handleForceManualUpdatePrompt);
     ipcRenderer.invoke("is-manual-update-only").then(setManualUpdateOnly);
-  }, [manualUpdateOnly]);
+
+    return () => {
+      ipcRenderer.removeListener("manual-update-only", handleManualUpdateOnly);
+      ipcRenderer.removeListener("force-manual-update-prompt", handleForceManualUpdatePrompt);
+    };
+  }, []);
 
   useEffect(() => {
     if (state === "downloaded") {

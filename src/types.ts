@@ -105,8 +105,10 @@ export type GameBananaSearchGameResult = {
 
 export type GameBananaSearchModResult = {
   _aRecords: Array<{
+    _idRow: number,
     _sName: string,
     _sProfileUrl: string,
+    _bHasFiles?: boolean,
     _aPreviewMedia: {
       _aImages: Array<{
         _sBaseUrl: string,
@@ -118,9 +120,19 @@ export type GameBananaSearchModResult = {
 };
 
 export type GameBananaMod = {
+  id: number,
   name: string,
   url: string,
   cover: string,
+  hasFiles: boolean,
+};
+
+export type GameBananaFile = {
+  id: number,
+  name: string,
+  size: number,
+  downloadUrl: string,
+  description?: string,
 };
 
 export type Settings = {

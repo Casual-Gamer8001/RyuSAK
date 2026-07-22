@@ -1,7 +1,7 @@
-﻿# RyuSAK 1.7.0 Community Build
+# RyuSAK 1.7.1 Community Build
 
 ![showDownloads](https://img.shields.io/github/downloads/Casual-Gamer8001/RyuSAK/total?style=for-the-badge)
-![showVersion](https://img.shields.io/badge/version-1.7.0-blue?style=for-the-badge)
+![showVersion](https://img.shields.io/badge/version-1.7.1-blue?style=for-the-badge)
 ![showLicense](https://img.shields.io/github/license/Casual-Gamer8001/RyuSAK?style=for-the-badge)
 
 <p align="center">
@@ -11,7 +11,7 @@
 This is a community-maintained fork of the original [Ecks1337/RyuSAK](https://github.com/Ecks1337/RyuSAK) project.
 
 ## Installation
-Download `RyuSAK-1.7.0-Setup.exe` from the [v1.7.0 release](https://github.com/Casual-Gamer8001/RyuSAK/releases/tag/v1.7.0). The setup wizard asks whether you want a standard install or a portable install before you choose the install folder.
+Download `RyuSAK-1.7.1-Setup.exe` from the [v1.7.1 release](https://github.com/Casual-Gamer8001/RyuSAK/releases/tag/v1.7.1). The setup wizard asks whether you want a standard install or a portable install before you choose the install folder.
 
 ### Windows
 
@@ -24,12 +24,17 @@ Choose **Portable install** in setup to create the `portable` marker and keep se
 ## Features
 * Add one or multiple Ryujinx/Ryubing data folders to manage different emulator installs
 * List your game library
-* Download and share shader caches
+* Download, share, and merge shader caches through the community backend
+* Use shader cache variant metadata when different Ryujinx/Ryubing cache formats are available
 * Set custom game titles and covers
 * Hide duplicates/unknowns from the RyuSAK library
 * Show Ryubing compatibility data
-* Download shaders
-* Download mods
+* Install supported GameBanana mods directly into the emulator mods folder
+* Get clear manual-install guidance when a GameBanana mod cannot be safely installed automatically
+* Adjust game icon size with a polished live slider using friendly size labels
+* Update from standard or portable installs with a silent installer and visible progress window
+
+Community save downloads are hidden for now and will be revisited in a later release.
 
 In an effort to keep Nintendo from fondling my booty cheeks. Product keys and firmware download/install functionality have been removed from this community build.
 

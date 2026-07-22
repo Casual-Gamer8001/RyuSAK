@@ -1,5 +1,5 @@
 import { GetState, SetState } from "zustand/vanilla";
-import { MirrorDirMeta, RyusakShaders, RyusakShaderVariants, LS_KEYS, Settings } from "../../types";
+import { RyusakShaders, RyusakShaderVariants, LS_KEYS, Settings } from "../../types";
 import { IDownloadManager } from "./downloadManager.action";
 import useTranslation from "../i18n/I18nService";
 import { invokeIpc } from "../utils";
@@ -9,8 +9,6 @@ const { t } = useTranslation();
 interface IBootstrap {
   isAppInitialized: boolean;
   bootstrapError?: string;
-  saves: MirrorDirMeta;
-  mods: MirrorDirMeta;
   ryujinxShaders: RyusakShaders;
   ryujinxShaderVariants: RyusakShaderVariants;
   bootstrapAppAction: () => Promise<void>;
@@ -26,8 +24,6 @@ const lastEshopUpdate = localStorage.getItem(LS_KEYS.ESHOP_UPDATE) ? +localStora
 const createBootstrapSlice = (set: SetState<IBootstrap>, get: GetState<IDownloadManager>): IBootstrap => ({
   isAppInitialized: false,
   bootstrapError: null,
-  saves: [],
-  mods: [],
   ryujinxShaders: {},
   ryujinxShaderVariants: {},
   latestVersion: null,
@@ -43,8 +39,6 @@ const createBootstrapSlice = (set: SetState<IBootstrap>, get: GetState<IDownload
         settings,
         ryujinxShaders,
         ryujinxShaderVariants,
-        saves,
-        mods,
         latestVersion,
         currentVersion,
         threshold,
@@ -79,8 +73,6 @@ const createBootstrapSlice = (set: SetState<IBootstrap>, get: GetState<IDownload
         settings,
         bootstrapError: null,
         isAppInitialized: true,
-        saves,
-        mods,
         ryujinxShaders,
         ryujinxShaderVariants,
         latestVersion,

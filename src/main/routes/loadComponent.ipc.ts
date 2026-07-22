@@ -1,7 +1,7 @@
 import HttpService from "../services/HttpService";
 import electron from "electron";
 import { SYS_SETTINGS } from "../../index";
-import { MirrorDirMeta, RyusakShaders, RyusakShaderVariants } from "../../types";
+import { RyusakShaders, RyusakShaderVariants } from "../../types";
 
 const loadStartupResource = async <T>(name: string, promise: Promise<T>, fallback: T): Promise<T> => {
   try {
@@ -16,8 +16,6 @@ const loadComponentIpcHandler = async () => Promise.all([
   SYS_SETTINGS,
   loadStartupResource<RyusakShaders>("ryujinx shader list", HttpService.downloadRyujinxShaderList(), {}),
   loadStartupResource<RyusakShaderVariants>("ryujinx shader variants", HttpService.downloadRyujinxShaderVariants(), {}),
-  loadStartupResource<MirrorDirMeta>("save list", HttpService.downloadSaveList(), []),
-  loadStartupResource<MirrorDirMeta>("mods title list", HttpService.downloadModsTitleList(), []),
   HttpService.getLatestApplicationVersion(),
   electron.app.getVersion(),
   loadStartupResource<number>("shader threshold", HttpService.getThreshold(), -1),

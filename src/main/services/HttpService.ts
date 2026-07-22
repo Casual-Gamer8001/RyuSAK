@@ -6,19 +6,14 @@ import https from "https";
 import httpsProxyAgent from "https-proxy-agent";
 import fs from "fs-extra";
 import path from "path";
-import { MirrorDirMeta, PostShadersBody, RyusakShaders, RyusakShaderVariants, GameBananaSearchGameResult, GameBananaSearchModResult } from "../../types";
+import { MirrorDirMeta, PostShadersBody, RyusakShaders, RyusakShaderVariants, GameBananaSearchGameResult, GameBananaSearchModResult, GameBananaFile } from "../../types";
 
 const USER_AGENT = `RyuSAK/${app.getVersion()}`;
-const CDN_URL = "https://mirror.lewd.wtf";
 const SHADER_REPOSITORY_URL = "https://ryusak-shader-backend.azurewebsites.net/";
 
 export enum HTTP_PATHS {
-  MODS_TITLE_LIST   = "/json/archive/nintendo/switch/mods/",
-  MODS_VERSION_LIST = "/json/archive/nintendo/switch/mods/{title_id}/",
-  MODS_LIST         = "/json/archive/nintendo/switch/mods/{title_id}/{version}/",
-  MOD_DOWNLOAD      = "/json/archive/nintendo/switch/mods/{title_id}/{version}/{name}/",
-  SAVES_LIST        = "/json/archive/nintendo/switch/savegames/",
-  SAVES_DOWNLOAD    = "/archive/nintendo/switch/savegames/{file_name}",
+  COMMUNITY_SAVES_LIST = "metadata/savegames.json",
+  COMMUNITY_SAVES_DOWNLOAD = "savegames/{file_name}",
   SHADERS_LIST_PC   = "metadata/shader_count_spirv.json",
   SHADERS_LIST_MAC  = "metadata/shader_count_macos.json",
   SHADERS_VARIANTS_PC = "metadata/shader_variants_spirv.json",
@@ -35,6 +30,7 @@ export enum OTHER_URLS {
   ESHOP_DATA              = "https://ryusak-shader-backend.azurewebsites.net/metadata/titles.US.en.json",
   GAME_BANANA_SEARCH_GAME = "https://api.gamebanana.com/Core/List/Like?itemtype=Game&field=name&match={match}",
   GAME_BANANA_SEARCH_MODS = "https://gamebanana.com/apiv10/Mod/Index?_nPage=1&_nPerpage=50&_sSort=Generic_MostDownloaded&_aFilters[Generic_Game]={id}",
+  GAME_BANANA_MOD_FILES   = "https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&itemid={id}&fields=name,Files().aFiles()",
 }
 
 class HttpService {
@@ -80,7 +76,7 @@ class HttpService {
   }
 
   // Trigger HTTP request using an exponential backoff strategy
-  protected get(path: string, contentType: "JSON" | "TXT" | "BUFFER" = "JSON", retries = 3, baseUrl = CDN_URL) {
+  protected get(path: string, contentType: "JSON" | "TXT" | "BUFFER" = "JSON", retries = 3, baseUrl = SHADER_REPOSITORY_URL) {
     const url = new URL(path, baseUrl);
     return pRetry(
       async () => {
@@ -108,7 +104,7 @@ class HttpService {
     return this.get(path, contentType, retries, this.shaderRepositoryUrl);
   }
 
-  public async post(path: string, body: BodyInit, headers: HeadersInit = null, baseUrl = CDN_URL) {
+  public async post(path: string, body: BodyInit, headers: HeadersInit = null, baseUrl = SHADER_REPOSITORY_URL) {
     const url = new URL(path, baseUrl);
     return this.fetch(url.href, {
       method: "POST",
@@ -117,7 +113,7 @@ class HttpService {
     });
   }
 
-  public async postJSON(path: string, obj: any, baseUrl = CDN_URL) {
+  public async postJSON(path: string, obj: any, baseUrl = SHADER_REPOSITORY_URL) {
     return this.post(
       path,
       JSON.stringify(obj),
@@ -135,7 +131,7 @@ class HttpService {
     return this.postJSON("/", body, this.shaderRepositoryUrl);
   }
 
-  public async getWithProgress(path: string, destPath: string, mainWindow: BrowserWindow, eventName: string, baseUrl = CDN_URL) {
+  public async getWithProgress(path: string, destPath: string, mainWindow: BrowserWindow, eventName: string, baseUrl = SHADER_REPOSITORY_URL) {
     const url = new URL(path, baseUrl);
     const fileStream = fs.createWriteStream(destPath);
     const controller = new AbortController();
@@ -195,12 +191,8 @@ class HttpService {
     ).catch(() => ({})) as Promise<RyusakShaderVariants>;
   }
 
-  public async downloadSaveList() {
-    return this.get(HTTP_PATHS.SAVES_LIST) as Promise<MirrorDirMeta>;
-  }
-
-  public async downloadModsTitleList() {
-    return this.get(HTTP_PATHS.MODS_TITLE_LIST) as Promise<MirrorDirMeta>;
+  public async downloadCommunitySaveList() {
+    return this.getFromShaderRepository(HTTP_PATHS.COMMUNITY_SAVES_LIST).catch(() => []) as Promise<MirrorDirMeta>;
   }
 
   public async getThreshold() {
@@ -260,36 +252,8 @@ class HttpService {
     }
   }
 
-  public async getModVersions(titleId: string) {
-    return this.get(HTTP_PATHS.MODS_VERSION_LIST.replace("{title_id}", titleId)) as Promise<MirrorDirMeta>;
-  }
-
-  public async getModsForVersion(titleId: string, version: string) {
-    return this.get(HTTP_PATHS.MODS_LIST.replace("{title_id}", titleId).replace("{version}", version));
-  }
-
-  public async getModName(titleId: string, version: string, name: string): Promise<{ modName: string, url: string }> {
-    const path = HTTP_PATHS.MOD_DOWNLOAD
-                           .replace("{title_id}", titleId)
-                           .replace("{version}", encodeURIComponent(version))
-                           .replace("{name}", encodeURIComponent(name));
-
-    const mod = (await this.get(path)) as MirrorDirMeta;
-
-    if (!mod[0]) {
-      return;
-    }
-
-    const url = new URL(`${path}${encodeURIComponent(mod[0].name)}`, CDN_URL);
-
-    return {
-      modName: mod[0].name,
-      url: url.href
-    };
-  }
-
-  public async downloadSave(fileName: string) {
-    return this.get(HTTP_PATHS.SAVES_DOWNLOAD.replace("{file_name}", fileName), "BUFFER") as Promise<ArrayBuffer>;
+  public async downloadCommunitySave(fileName: string) {
+    return this.getFromShaderRepository(HTTP_PATHS.COMMUNITY_SAVES_DOWNLOAD.replace("{file_name}", encodeURIComponent(fileName)), "BUFFER") as Promise<ArrayBuffer>;
   }
 
   public async gameBananaSearchGame(match: string) {
@@ -298,6 +262,21 @@ class HttpService {
 
   public async gameBananaSearchMods(gameId: number) {
     return this.get(OTHER_URLS.GAME_BANANA_SEARCH_MODS.replace("{id}", gameId.toString())) as Promise<GameBananaSearchModResult>;
+  }
+
+  public async gameBananaModFiles(modId: number) {
+    return this.get(OTHER_URLS.GAME_BANANA_MOD_FILES.replace("{id}", modId.toString())) as Promise<[string, { [id: string]: {
+      _idRow: number,
+      _sFile: string,
+      _nFilesize: number,
+      _sDownloadUrl: string,
+      _sDescription?: string,
+      _bIsArchived?: boolean,
+    } }]>;
+  }
+
+  public async downloadGameBananaFile(file: GameBananaFile, destPath: string, mainWindow: BrowserWindow, eventName: string) {
+    return this.getWithProgress(file.downloadUrl, destPath, mainWindow, eventName);
   }
 }
 

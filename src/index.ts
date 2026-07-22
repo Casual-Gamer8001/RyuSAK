@@ -132,7 +132,11 @@ ipcMain.handle("install-manual-update", async () => {
     ].join("\r\n");
 
     await fs.writeFile(scriptPath, script, "utf8");
-    const child = child_process.spawn("powershell.exe", [
+    const child = child_process.spawn("cmd.exe", [
+      "/c",
+      "start",
+      "\"\"",
+      "powershell.exe",
       "-NoProfile",
       "-ExecutionPolicy",
       "Bypass",
@@ -140,7 +144,8 @@ ipcMain.handle("install-manual-update", async () => {
       scriptPath
     ], {
       detached: true,
-      stdio: "ignore"
+      stdio: "ignore",
+      windowsHide: false
     });
     child.unref();
     app.quit();
@@ -247,7 +252,7 @@ const createWindow = (): void => {
     if (forceManualUpdatePrompt) {
       mainWindow.webContents.send("force-manual-update-prompt");
     }
-    else if (!isDev && process.platform === "win32") {
+    else if (hasSquirrelUpdater && !isDev && process.platform === "win32") {
       const feed = `https://update.electronjs.org/Casual-Gamer8001/RyuSAK/${process.platform}-${process.arch}/${app.getVersion()}`;
 
       autoUpdater.setFeedURL({
@@ -310,10 +315,8 @@ if (!gotTheLock) {
     }
   });
 
-  // This method will be called when Electron has finished
-  // initialization and is ready to create browser windows.
-  // Some APIs can only be used after this event occurs.
-  app.on("ready", createWindow);
+  // Some APIs can only be used after Electron is ready.
+  app.whenReady().then(createWindow);
 }
 
 app.on("window-all-closed", () => {

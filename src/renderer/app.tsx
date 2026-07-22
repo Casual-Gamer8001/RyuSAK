@@ -16,8 +16,6 @@ import MainComponent from "./components/MainComponent";
 import TOSComponent from "./components/TOSComponent/TOSComponent";
 import AlertComponent from "./components/AlertComponent/AlertComponent";
 import DownloadManagerComponent from "./components/DownloadManagerComponent/DownloadManagerComponent";
-import DownloadSaveComponent from "./components/DownloadSaveComponent/DownloadSaveComponent";
-import DownloadModComponent from "./components/DownloadModComponent/DownloadModComponent";
 import GameDetailComponent from "./components/GameDetailComponent/GameDetailComponent";
 import UpdateComponent from "./components/UpdateComponent/UpdateComponent";
 
@@ -98,8 +96,6 @@ const App = () => {
       <CssBaseline>
         <AlertComponent />
         <DownloadManagerComponent />
-        <DownloadSaveComponent />
-        <DownloadModComponent />
         <UpdateComponent state={downloadState} />
         { !isAppInitialized
           ? <LoadingComponent error={bootstrapError} onRetry={bootstrapAppAction} />

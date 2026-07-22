@@ -19,8 +19,12 @@ export const searchGameBanana = async (...args: searchProps): Promise<Array<Game
   }
 
   return mods.map(mod => ({
+    id: mod._idRow,
     name: mod._sName,
     url: mod._sProfileUrl,
-    cover: "https://images.gamebanana.com/img/ss/mods/" + (mod._aPreviewMedia._aImages[0]._sFile220 || mod._aPreviewMedia._aImages[0]._sFile)
+    cover: mod._aPreviewMedia?._aImages?.[0]
+      ? `${mod._aPreviewMedia._aImages[0]._sBaseUrl}/${mod._aPreviewMedia._aImages[0]._sFile220 || mod._aPreviewMedia._aImages[0]._sFile}`
+      : "",
+    hasFiles: mod._bHasFiles !== false
   }));
 };

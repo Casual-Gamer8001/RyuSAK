@@ -23,7 +23,6 @@ import GameBananaModsComponent from "../GameBananaModsComponent";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useLocation, useNavigate } from "react-router-dom";
 import { invokeIpc } from "../../utils";
-import Enumerable from "linq";
 
 interface IGameDetailProps {
   titleId: string;
@@ -70,10 +69,6 @@ const GameDetailComponent = () => {
   const { state } = useLocation();
   const { titleId, dataPath } = state as IGameDetailProps;
   const [
-    saves,
-    setCurrentSaveDownloadAction,
-    mods,
-    setCurrentModAction,
     ryujinxShaders,
     ryujinxShaderVariants,
     downloadShadersAction,
@@ -85,10 +80,6 @@ const GameDetailComponent = () => {
     shadersMinVersion,
     settings
   ] = useStore(state => [
-    state.saves,
-    state.setCurrentSaveDownloadAction,
-    state.mods,
-    state.setCurrentModAction,
     state.ryujinxShaders,
     state.ryujinxShaderVariants,
     state.downloadShadersAction,
@@ -315,8 +306,6 @@ const GameDetailComponent = () => {
     return null;
   }
 
-  const hasMods = Enumerable.from(mods).any(mod => mod.name.includes(metaData.id));
-  const hasSaves = Enumerable.from(saves).any(save => save.name.includes(metaData.id));
   const matchingShaderVariant = localShaderCacheKey ? ryujinxShaderVariants?.[metaData.id]?.[localShaderCacheKey] : null;
   const ryusakShadersCount = matchingShaderVariant?.shaderCount || ryujinxShaders[metaData.id] || 0;
   const ryusakShadersPath = matchingShaderVariant?.path;
@@ -397,26 +386,6 @@ const GameDetailComponent = () => {
               {t("openModsDir")}
             </Button>
           </p>
-          <p>
-            <Button
-              variant="contained"
-              fullWidth
-              disabled={!hasMods}
-              onClick={() => setCurrentModAction(metaData.id, dataPath)}
-            >
-              {t(hasMods ? "dlMods" : "noMods")}
-            </Button>
-          </p>
-          <p>
-            <Button
-              variant="contained"
-              fullWidth
-              disabled={!hasSaves}
-              onClick={() => setCurrentSaveDownloadAction(metaData.id)}
-            >
-              {t(hasSaves ? "dlSave": "noSave")}
-            </Button>
-          </p>
         </Grid>
         <Grid item xs={6} pl={3} pr={3} style={{ position: "relative", top: -10 }}>
           <Grid container>
@@ -492,7 +461,7 @@ const GameDetailComponent = () => {
         </Grid>
 
         <Grid item xs={12}>
-          <GameBananaModsComponent titleName={metaData?.name} />
+          <GameBananaModsComponent titleId={metaData?.id} titleName={metaData?.name} dataPath={dataPath} />
         </Grid>
       </Grid>
     </Box>

@@ -1,6 +1,7 @@
 import "./setting.css";
 import React, { useState } from "react";
 import {
+  Box,
   Button,
   TextField,
   Dialog,
@@ -21,6 +22,24 @@ import { LS_KEYS } from "../../../types";
 import { LANGUAGES } from "../../app";
 
 const gameIconSizeMarks = [90, 95, 105, 120, 135, 155, 180, 210, 245, 285, 330, 360];
+const gameIconSizeLabelKeys = [
+  "gameIconSizeCompact",
+  "gameIconSizeCompact",
+  "gameIconSizeSmall",
+  "gameIconSizeSmall",
+  "gameIconSizeMedium",
+  "gameIconSizeMedium",
+  "gameIconSizeLarge",
+  "gameIconSizeLarge",
+  "gameIconSizeExtraLarge",
+  "gameIconSizeExtraLarge",
+  "gameIconSizeShowcase",
+  "gameIconSizeShowcase"
+] as const;
+const gameIconSizeNamedMarks = [0, 2, 4, 6, 8, 10].map(value => ({
+  value,
+  labelKey: gameIconSizeLabelKeys[value]
+}));
 
 const closestGameIconSize = (value: number) => gameIconSizeMarks
   .reduce((closest, size) => Math.abs(size - value) < Math.abs(closest - value) ? size : closest, gameIconSizeMarks[0]);
@@ -37,6 +56,8 @@ const gameIconSizeValue = (value: string) => {
   const numericValue = Number(value);
   return Number.isFinite(numericValue) ? closestGameIconSize(numericValue) : legacySizes[value] || 180;
 };
+
+const gameIconSizeLabelKey = (value: number) => gameIconSizeLabelKeys[gameIconSizeIndex(value)];
 
 const SettingComponent = () => {
   const { t } = useTranslation();
@@ -89,24 +110,75 @@ const SettingComponent = () => {
             https://www.steamgriddb.com/profile/preferences/api
           </Link>
         </Typography>
-        <Typography sx={{ mt: 3 }} gutterBottom>
-          {t("gameIconSize")}: {gameIconSize}px
-        </Typography>
-        <Slider
-          min={0}
-          max={gameIconSizeMarks.length - 1}
-          step={1}
-          marks={gameIconSizeMarks.map((size, value) => ({ value, label: `${size}` }))}
-          value={gameIconSizeIndex(gameIconSize)}
-          valueLabelDisplay="auto"
-          valueLabelFormat={(value) => `${gameIconSizeMarks[value]}px`}
-          onChange={async (_, value) => {
-            const nextIndex = Array.isArray(value) ? value[0] : value;
-            const nextValue = gameIconSizeMarks[nextIndex];
-            setGameIconSize(nextValue);
-            await setGameIconSizeAction(`${nextValue}`);
-          }}
-        />
+        <Box sx={{ mt: 3 }}>
+          <Typography gutterBottom>
+            {t("gameIconSize")}: <strong>{t(gameIconSizeLabelKey(gameIconSize))}</strong>
+          </Typography>
+          <Slider
+            min={0}
+            max={gameIconSizeMarks.length - 1}
+            step={1}
+            marks={gameIconSizeMarks.map((_, value) => ({
+              value,
+              label: gameIconSizeNamedMarks.find(mark => mark.value === value)
+                ? t(gameIconSizeLabelKeys[value])
+                : ""
+            }))}
+            value={gameIconSizeIndex(gameIconSize)}
+            valueLabelDisplay="auto"
+            valueLabelFormat={(value) => t(gameIconSizeLabelKeys[value])}
+            sx={{
+              color: "#0d6efd",
+              height: 10,
+              mt: 1,
+              mb: 4,
+              "& .MuiSlider-rail": {
+                opacity: 0.25,
+                borderRadius: 999
+              },
+              "& .MuiSlider-track": {
+                border: "none",
+                borderRadius: 999,
+                background: "linear-gradient(90deg, #1f8fff 0%, #48c6ef 100%)"
+              },
+              "& .MuiSlider-thumb": {
+                height: 24,
+                width: 24,
+                backgroundColor: "#fff",
+                border: "3px solid #1f8fff",
+                boxShadow: "0 0 0 6px rgba(31, 143, 255, 0.16)",
+                "&:hover, &.Mui-focusVisible": {
+                  boxShadow: "0 0 0 9px rgba(31, 143, 255, 0.22)"
+                }
+              },
+              "& .MuiSlider-mark": {
+                width: 4,
+                height: 4,
+                borderRadius: "50%",
+                backgroundColor: "#fff",
+                opacity: 0.9
+              },
+              "& .MuiSlider-markActive": {
+                backgroundColor: "#fff"
+              },
+              "& .MuiSlider-valueLabel": {
+                backgroundColor: "#1f8fff",
+                fontWeight: 600
+              },
+              "& .MuiSlider-markLabel": {
+                fontSize: "0.72rem",
+                color: "text.secondary",
+                top: 34
+              }
+            }}
+            onChange={async (_, value) => {
+              const nextIndex = Array.isArray(value) ? value[0] : value;
+              const nextValue = gameIconSizeMarks[nextIndex];
+              setGameIconSize(nextValue);
+              await setGameIconSizeAction(`${nextValue}`);
+            }}
+          />
+        </Box>
         <FormControl sx={{ mt: 3, mb: 1 }} fullWidth>
           <InputLabel id="locale-label">{t("locale")}</InputLabel>
           <Select labelId="locale-label" label={t("locale")} value={locale} onChange={(e) => setLocale(e.target.value)}>
