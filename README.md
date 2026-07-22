@@ -1,7 +1,7 @@
-# RyuSAK 1.7.0 Community Build
+﻿# RyuSAK 1.7.0 Community Build
 
 ![showDownloads](https://img.shields.io/github/downloads/Casual-Gamer8001/RyuSAK/total?style=for-the-badge)
-![showVersion](https://img.shields.io/github/package-json/v/Casual-Gamer8001/RyuSAK?style=for-the-badge)
+![showVersion](https://img.shields.io/badge/version-1.7.0-blue?style=for-the-badge)
 ![showLicense](https://img.shields.io/github/license/Casual-Gamer8001/RyuSAK?style=for-the-badge)
 
 <p align="center">
@@ -24,18 +24,14 @@ Choose **Portable install** in setup to create the `portable` marker and keep se
 ## Features
 * Add one or multiple Ryujinx/Ryubing data folders to manage different emulator installs
 * List your game library
-* Display your local shaders count & RyuSAK shaders count (to download them if you have fewer shaders)
-* Download and share shader caches through the Azure shader backend
-* Use Azure title metadata and cover fallback
-* Search SteamGridDB covers with your own API key
+* Download and share shader caches
 * Set custom game titles and covers
-* Hide games from the RyuSAK library
-* Show Ryubing compatibility data from the cached compatibility CSV
-* Download saves for a specific game
-* Download shaders for a specific game
-* Downloads mods for a specific game
+* Hide duplicates/unknowns from the RyuSAK library
+* Show Ryubing compatibility data
+* Download shaders
+* Download mods
 
-Product keys and firmware download/install functionality have been removed from this community build.
+In an effort to keep Nintendo from fondling my booty cheeks. Product keys and firmware download/install functionality have been removed from this community build.
 
 ## Contributing
 Requirements:
