@@ -4,10 +4,20 @@ import { app } from "electron";
 import { RyusakEmulatorGames } from "../../types";
 
 export const getRyujinxPath = (): string => {
-  if (process.platform === "win32")
+  if (process.platform === "win32") {
     return path.resolve(app.getPath("appData"), "Ryujinx");
-  else
-    return path.resolve(app.getPath("home"), ".config", "Ryujinx");
+  }
+
+  const home = app.getPath("home");
+  const linuxCandidates = [
+    path.resolve(home, ".var", "app", "org.ryujinx.Ryujinx", "config", "Ryujinx"),
+    path.resolve(home, ".var", "app", "org.ryubing.Ryubing", "config", "Ryujinx"),
+    path.resolve(home, ".var", "app", "org.ryubing.Ryubing", "config", "Ryubing"),
+    path.resolve(home, ".config", "Ryujinx"),
+    path.resolve(home, ".config", "Ryubing")
+  ];
+
+  return linuxCandidates.find(candidate => fs.existsSync(candidate)) || linuxCandidates[0];
 };
 
 export const scanGamesForConfig = async (dataPath: string): Promise<RyusakEmulatorGames> => {

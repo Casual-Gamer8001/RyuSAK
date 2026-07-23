@@ -11,15 +11,47 @@
 This is a community-maintained fork of the original [Ecks1337/RyuSAK](https://github.com/Ecks1337/RyuSAK) project.
 
 ## Installation
-Download `RyuSAK-1.7.1-Setup.exe` from the [v1.7.1 release](https://github.com/Casual-Gamer8001/RyuSAK/releases/tag/v1.7.1). The setup wizard asks whether you want a standard install or a portable install before you choose the install folder.
+Download RyuSAK from the [v1.7.1 release](https://github.com/Casual-Gamer8001/RyuSAK/releases/tag/v1.7.1).
 
 ### Windows
+Download `RyuSAK-1.7.1-Setup.exe`. The setup wizard asks whether you want a standard install or a portable install before you choose the install folder.
 
 #### Standard install
 Choose **Standard install** in setup to store RyuSAK settings in your Windows user profile.
 
 #### Portable
 Choose **Portable install** in setup to create the `portable` marker and keep settings in an `electron_cache` folder next to `RyuSAK.exe`.
+
+### Steam Deck / SteamOS
+Download `RyuSAK-1.7.1-steamdeck-linux-x64.zip` on the Steam Deck.
+
+1. Switch to **Desktop Mode**.
+2. Extract the ZIP file.
+3. Open the extracted `RyuSAK-linux-x64` folder.
+4. Run `RyuSAK`.
+5. If SteamOS blocks launch, right-click `RyuSAK`, open **Properties**, and allow it to execute as a program.
+6. In RyuSAK, use **Configuration** to select your Ryujinx/Ryubing data folder.
+
+Common Flatpak data paths are:
+
+```text
+~/.var/app/org.ryujinx.Ryujinx/config/Ryujinx
+~/.var/app/org.ryubing.Ryubing/config/Ryujinx
+~/.var/app/org.ryubing.Ryubing/config/Ryubing
+```
+
+#### Add RyuSAK to Gaming Mode
+1. In Desktop Mode, open Steam.
+2. Go to **Games > Add a Non-Steam Game to My Library**.
+3. Click **Browse** and select the extracted `RyuSAK-linux-x64/RyuSAK` executable.
+4. Add it to your library.
+5. Right-click the new RyuSAK entry, open **Properties**, and set launch options to:
+
+```text
+--no-sandbox
+```
+
+6. Return to Gaming Mode and launch RyuSAK from your Steam library.
 
 ## Features
 * Add one or multiple Ryujinx/Ryubing data folders to manage different emulator installs
@@ -33,6 +65,7 @@ Choose **Portable install** in setup to create the `portable` marker and keep se
 * Get clear manual-install guidance when a GameBanana mod cannot be safely installed automatically
 * Adjust game icon size with a polished live slider using friendly size labels
 * Update from standard or portable installs with a silent installer and visible progress window
+* Run on Steam Deck/SteamOS using the Linux x64 test package
 
 In an effort to keep Nintendo from fondling my booty cheeks. Product keys and firmware download/install functionality have been removed from this community build.
 
