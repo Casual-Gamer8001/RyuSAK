@@ -34,8 +34,6 @@ Choose **Portable install** in setup to create the `portable` marker and keep se
 * Adjust game icon size with a polished live slider using friendly size labels
 * Update from standard or portable installs with a silent installer and visible progress window
 
-Community save downloads are hidden for now and will be revisited in a later release.
-
 In an effort to keep Nintendo from fondling my booty cheeks. Product keys and firmware download/install functionality have been removed from this community build.
 
 ## Contributing
