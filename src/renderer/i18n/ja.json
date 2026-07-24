@@ -83,6 +83,7 @@
   "dlShaders": "シェーダーをダウンロード",
   "shareShaders": "シェーダーを共有",
   "shaderUploadingUnavailable": "現在、シェーダーのアップロードは利用できません",
+  "launchGameForShaderVariants": "Shader caches are available for this game, but RyuSAK needs you to launch the game once in the emulator before it can detect the correct shader cache version.",
   "shaders": "シェーダー",
   "threshold": "しきい値",
   "refresh": "更新",

@@ -307,6 +307,8 @@ const GameDetailComponent = () => {
   }
 
   const matchingShaderVariant = localShaderCacheKey ? ryujinxShaderVariants?.[metaData.id]?.[localShaderCacheKey] : null;
+  const hasShaderVariants = Object.keys(ryujinxShaderVariants?.[metaData.id] || {}).length > 0;
+  const shouldShowLaunchGameForShadersReminder = !localShaderCacheKey && hasShaderVariants && !ryujinxShaders[metaData.id];
   const ryusakShadersCount = matchingShaderVariant?.shaderCount || ryujinxShaders[metaData.id] || 0;
   const ryusakShadersPath = matchingShaderVariant?.path;
 
@@ -417,6 +419,13 @@ const GameDetailComponent = () => {
               <Divider />
             </Grid>
           </Grid>
+          {
+            shouldShowLaunchGameForShadersReminder && (
+              <Alert severity="info" sx={{ mt: 2 }}>
+                {t("launchGameForShaderVariants")}
+              </Alert>
+            )
+          }
           <GridWithVerticalSeparator container pt={2} spacing={0}>
             <GridWithVerticalSeparator item xs pr={2}>
               <Box>
