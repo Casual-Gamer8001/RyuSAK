@@ -1,7 +1,7 @@
-# RyuSAK 1.7.1 Community Build
+# RyuSAK 1.7.2 Community Build
 
 ![showDownloads](https://img.shields.io/github/downloads/Casual-Gamer8001/RyuSAK/total?style=for-the-badge)
-![showVersion](https://img.shields.io/badge/version-1.7.1-blue?style=for-the-badge)
+![showVersion](https://img.shields.io/badge/version-1.7.2-blue?style=for-the-badge)
 ![showLicense](https://img.shields.io/github/license/Casual-Gamer8001/RyuSAK?style=for-the-badge)
 
 <p align="center">
@@ -11,10 +11,10 @@
 This is a community-maintained fork of the original [Ecks1337/RyuSAK](https://github.com/Ecks1337/RyuSAK) project.
 
 ## Installation
-Download RyuSAK from the [v1.7.1 release](https://github.com/Casual-Gamer8001/RyuSAK/releases/tag/v1.7.1).
+Download RyuSAK from the [v1.7.2 release](https://github.com/Casual-Gamer8001/RyuSAK/releases/tag/v1.7.2).
 
 ### Windows
-Download `RyuSAK-1.7.1-Setup.exe`. The setup wizard asks whether you want a standard install or a portable install before you choose the install folder.
+Download `RyuSAK-1.7.2-Setup.exe`. The setup wizard asks whether you want a standard install or a portable install before you choose the install folder.
 
 #### Standard install
 Choose **Standard install** in setup to store RyuSAK settings in your Windows user profile.
@@ -23,7 +23,7 @@ Choose **Standard install** in setup to store RyuSAK settings in your Windows us
 Choose **Portable install** in setup to create the `portable` marker and keep settings in an `electron_cache` folder next to `RyuSAK.exe`.
 
 ### Steam Deck / SteamOS
-Download `RyuSAK-1.7.1-steamdeck-linux-x64.zip` on the Steam Deck.
+Download `RyuSAK-1.7.2-steamdeck-linux-x64.zip` on the Steam Deck.
 
 1. Switch to **Desktop Mode**.
 2. Extract the ZIP file.

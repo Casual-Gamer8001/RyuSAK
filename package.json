@@ -1,7 +1,7 @@
 {
     "name": "RyuSAK",
     "productName": "RyuSAK",
-    "version": "1.7.1",
+    "version": "1.7.2",
     "description": "RyuSAK",
     "repository": "https://github.com/Casual-Gamer8001/RyuSAK",
     "main": ".webpack/main",
