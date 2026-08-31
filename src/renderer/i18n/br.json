@@ -83,7 +83,7 @@
   "dlShaders": "Baixar shaders",
   "shareShaders": "Enviar shaders",
   "shaderUploadingUnavailable": "Shader uploading is currently unavailable",
-  "launchGameForShaderVariants": "Shader caches are available for this game, but RyuSAK needs you to launch the game once in the emulator before it can detect the correct shader cache version.",
+  "launchGameForShaderVariants": "Launch this game once in your emulator, then reopen this page to download its shaders.",
   "shaders": "Shaders",
   "threshold": "Limiar",
   "refresh": "Atualizar",
