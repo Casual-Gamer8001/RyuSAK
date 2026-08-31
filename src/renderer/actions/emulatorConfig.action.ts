@@ -78,9 +78,29 @@ const emulatorConfig = (set: SetState<IEmulatorConfig>, get: GetState<Partial<IA
       }
     }
   },
-  removeEmulatorConfigAction: (path) => {
+  removeEmulatorConfigAction: async (path) => {
     const configs = get().ryujinxConfigs;
     const index = configs.findIndex(item => item.path === path);
+
+    if (index === -1) {
+      return null;
+    }
+
+    const config = configs[index];
+
+    const { isConfirmed } = await Swal.fire({
+      icon: "warning",
+      title: i18n.t("deleteConfigConfirmTitle"),
+      text: i18n.t("deleteConfigConfirmDescription").replace("{name}", config.name),
+      showCancelButton: true,
+      confirmButtonText: i18n.t("deleteConfiguration"),
+      cancelButtonText: i18n.t("cancel"),
+    });
+
+    if (!isConfirmed) {
+      return null;
+    }
+
     configs.splice(index, 1);
     localStorage.setItem(LS_KEYS.CONFIG, JSON.stringify(configs));
     return set({ ryujinxConfigs: configs, selectedConfig: configs[0] });
