@@ -36,6 +36,8 @@ import es from "./i18n/es.json";
 import se from "./i18n/se.json";
 import tr from "./i18n/tr.json";
 import zhcn from "./i18n/zh-CN.json";
+import fr from "./i18n/fr.json";
+import ja from "./i18n/ja.json";
 
 const darkTheme = createTheme({
   palette: {
@@ -48,7 +50,7 @@ const darkTheme = createTheme({
 
 const lng = localStorage.getItem(LS_KEYS.LOCALE) ?? "en";
 
-const resources = { en, ru, br, de, it, es, se, tr, zhcn };
+const resources = { en, ru, br, de, it, es, fr, ja, se, tr, zhcn };
 type localesType = keyof typeof resources;
 
 use(initReactI18next)
