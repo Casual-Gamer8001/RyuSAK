@@ -34,7 +34,7 @@ const emulatorConfig = (set: SetState<IEmulatorConfig>, get: GetState<Partial<IA
   addNewEmulatorConfigAction: async () => {
     await Swal.fire({
       icon: "info",
-      text: i18n.t("pickRyuDataPath")
+      text: i18n.t(process.platform === "linux" ? "pickRyuDataPathLinux" : "pickRyuDataPath")
     });
 
     const response = await invokeIpc("get-directory");

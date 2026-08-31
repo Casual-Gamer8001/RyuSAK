@@ -158,6 +158,14 @@ const GameListingComponent = ({ config }: IConfigContainer) => {
         </p>
         <Divider />
         <h4 dangerouslySetInnerHTML={{ __html: t("launchRyujinx") }} />
+        {
+          process.platform === "linux" && (
+            <p
+              style={{ textAlign: "left", fontSize: "0.85em", opacity: 0.85, background: "rgba(255,255,255,0.05)", padding: "10px 14px", borderRadius: 6 }}
+              dangerouslySetInnerHTML={{ __html: t("flatpakPathsHint") }}
+            />
+          )
+        }
         <p style={{ textAlign: "center" }}>
           <Button onClick={refreshLibrary} startIcon={<RefreshIcon />} variant="outlined">{t("refresh")}</Button>
         </p>
