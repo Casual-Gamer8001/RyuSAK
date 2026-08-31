@@ -314,21 +314,33 @@ const GameDetailComponent = () => {
 
   return (
     <Box p={3}>
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <Button onClick={() => navigate(-1)} size="small" variant="outlined"><ArrowBackIcon /></Button>
-          {
-            metaData && (
-              <h3 style={{ marginLeft: 12 }}>{metaData.name}</h3>
-            )
-          }
-        <Button
-          variant="contained"
-          color="error"
-          onClick={() => deleteGameAction(metaData.id, dataPath).then(confirmed => confirmed && navigate(-1))}
-          startIcon={<DeleteIcon />}
-        >
-          {t("deleteGame")}
-        </Button>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box sx={{ flex: 1, display: "flex", justifyContent: "flex-start" }}>
+          <Button onClick={() => navigate(-1)} size="small" variant="outlined"><ArrowBackIcon /></Button>
+        </Box>
+        {
+          metaData && (
+            <Tooltip title={metaData.name} placement="bottom">
+              <Typography
+                component="h3"
+                noWrap
+                sx={{ flex: "0 1 auto", minWidth: 0, m: 0, textAlign: "center", fontSize: "1.17em", fontWeight: 700 }}
+              >
+                {metaData.name}
+              </Typography>
+            </Tooltip>
+          )
+        }
+        <Box sx={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => deleteGameAction(metaData.id, dataPath).then(confirmed => confirmed && navigate(-1))}
+            startIcon={<DeleteIcon />}
+          >
+            {t("deleteGame")}
+          </Button>
+        </Box>
       </Box>
 
       <Divider />
