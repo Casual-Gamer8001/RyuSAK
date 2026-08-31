@@ -13,18 +13,13 @@ on:
   pull_request:
     branches:
       - 'master'
+      - 'main'
 
 jobs:
+  # Non-tag pushes and PRs: quick package sanity check + artifact upload.
   build:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os:   'windows-latest'
-            arch: 'x64'
-
+    if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: windows-latest
     steps:
       - name: Git checkout
         uses: actions/checkout@v4
@@ -36,27 +31,145 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run:  npm install --include=dev
+        run: npm install --include=dev
 
-      - name: Build
-        run:  npm run build -- --arch ${{ matrix.arch }}
+      - name: Build (package)
+        run: npm run build -- --arch x64
 
-      # If the action trigger was NOT a version tag
       - name: Upload artifact
-        if:   startsWith(github.ref, 'refs/tags/v') == false
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.os }}-${{ matrix.arch }}
+          name: windows-x64-package
           path: out/**/*
 
-      # If the action trigger was a version tag
-      - name: Make distributables
-        if:   startsWith(github.ref, 'refs/tags/v')
-        run:  npm run make -- --arch ${{ matrix.arch }}
+  # Tag builds -> Windows Inno Setup installer (release asset 1 of 2).
+  windows-installer:
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: windows-latest
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
 
-      - name: Publish to Releases
-        if:   startsWith(github.ref, 'refs/tags/v')
+      - name: Setup NodeJS environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --include=dev
+
+      - name: Package app (win32/x64)
+        run: npm run build -- --arch x64
+
+      - name: Resolve version and verify it matches the tag
+        id: ver
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $tag = $env:GITHUB_REF_NAME
+          if ("v$version" -ne $tag) {
+            Write-Error "package.json version ($version) does not match tag ($tag). Bump package.json before tagging."
+            exit 1
+          }
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Build installer
+        shell: pwsh
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$env:VERSION" installer\RyuSAK.iss
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: dist/RyuSAK-*-Setup.exe
+          if-no-files-found: error
+
+  # Tag builds -> Linux/Steam Deck zip with native Unix permissions (release asset 2 of 2).
+  linux-zip:
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
+
+      - name: Setup NodeJS environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --include=dev
+
+      - name: Package app (linux/x64)
+        run: npm run build -- --platform linux --arch x64
+
+      - name: Resolve version and verify it matches the tag
+        id: ver
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          tag="$GITHUB_REF_NAME"
+          if [ "v$version" != "$tag" ]; then
+            echo "package.json version ($version) does not match tag ($tag). Bump package.json before tagging." >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Create Steam Deck / Linux zip
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          set -euo pipefail
+          cd out
+          # Mark the build portable (settings live in electron_cache next to the app).
+          printf 'portable' > RyuSAK-linux-x64/portable
+          # Ensure the launcher is executable; native zip preserves Unix modes.
+          chmod +x RyuSAK-linux-x64/RyuSAK
+          zip -ry "RyuSAK-${VERSION}-steamdeck-linux-x64.zip" RyuSAK-linux-x64 > /dev/null
+          ls -l "RyuSAK-${VERSION}-steamdeck-linux-x64.zip"
+
+      - name: Upload linux zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-zip
+          path: out/RyuSAK-*-steamdeck-linux-x64.zip
+          if-no-files-found: error
+
+  # Tag builds -> publish a draft release with exactly the two curated assets.
+  release:
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    needs: [windows-installer, linux-zip]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download installer
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-installer
+          path: assets
+
+      - name: Download linux zip
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-zip
+          path: assets
+
+      - name: Compute release title version
+        id: v
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish draft release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
-          files: out/make/**/*
+          name: RyuSAK ${{ steps.v.outputs.version }}
+          files: |
+            assets/RyuSAK-*-Setup.exe
+            assets/RyuSAK-*-steamdeck-linux-x64.zip
+          fail_on_unmatched_files: true
