@@ -64,7 +64,7 @@ Common Flatpak data paths are:
 * Install supported GameBanana mods directly into the emulator mods folder
 * Get clear manual-install guidance when a GameBanana mod cannot be safely installed automatically
 * Adjust game icon size with a polished live slider using friendly size labels
-* Update from standard or portable installs with a silent installer and visible progress window
+* Update in place from within the app — a silent installer with a progress window on Windows, and an automatic download-and-relaunch on Linux/Steam Deck
 * Run on Steam Deck/SteamOS using the Linux x64 test package
 
 In an effort to keep Nintendo from fondling my booty cheeks. Product keys and firmware download/install functionality have been removed from this community build.
