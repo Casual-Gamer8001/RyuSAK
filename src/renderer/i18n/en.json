@@ -104,6 +104,8 @@
   "localShadersCount": "Local shader count",
   "ryusakShadersCount": "RyuSAK shader count",
   "dlShaders": "Download shaders",
+  "reportFaultyShaderCache": "Report faulty shader cache",
+  "reportFaultyShaderCacheInfo": "This opens a pre-filled report on GitHub in your browser. Describe what goes wrong with this shader cache and submit it. A maintainer will verify it and roll it back if it is confirmed faulty. A free GitHub account is required.",
   "shareShaders": "Share shaders",
   "shaderUploadingUnavailable": "Shader uploading is currently unavailable",
   "launchGameForShaderVariants": "Launch this game once in your emulator, then reopen this page to download its shaders.",

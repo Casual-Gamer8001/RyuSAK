@@ -81,6 +81,8 @@
   "localShadersCount": "本地着色器计数",
   "ryusakShadersCount": "RyuSAK 着色器计数",
   "dlShaders": "下载着色器",
+  "reportFaultyShaderCache": "报告有问题的着色器缓存",
+  "reportFaultyShaderCacheInfo": "这将在您的浏览器中打开一个 GitHub 上预填写的报告。请描述此着色器缓存的问题并提交。维护者会进行验证，如果确认有问题会将其回滚。提交需要一个免费的 GitHub 账户。",
   "shareShaders": "共享着色器",
   "shaderUploadingUnavailable": "当前无法上传着色器",
   "launchGameForShaderVariants": "在模拟器中启动此游戏一次，然后重新打开此页面以下载其着色器。",

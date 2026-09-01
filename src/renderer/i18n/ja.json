@@ -81,6 +81,8 @@
   "localShadersCount": "ローカルシェーダー数",
   "ryusakShadersCount": "RyuSAKシェーダー数",
   "dlShaders": "シェーダーをダウンロード",
+  "reportFaultyShaderCache": "不具合のあるシェーダーキャッシュを報告",
+  "reportFaultyShaderCacheInfo": "ブラウザで GitHub の入力済みレポートを開きます。このシェーダーキャッシュの問題を記入して送信してください。メンテナーが確認し、不具合が確認された場合は以前のバージョンに戻します。送信には無料の GitHub アカウントが必要です。",
   "shareShaders": "シェーダーを共有",
   "shaderUploadingUnavailable": "現在、シェーダーのアップロードは利用できません",
   "launchGameForShaderVariants": "エミュレーターでこのゲームを一度起動してから、このページを開き直してシェーダーをダウンロードしてください。",

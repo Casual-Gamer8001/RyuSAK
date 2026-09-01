@@ -21,6 +21,7 @@ import { styled } from "@mui/material/styles";
 import MuiGrid from "@mui/material/Grid";
 import GameBananaModsComponent from "../GameBananaModsComponent";
 import DeleteIcon from "@mui/icons-material/Delete";
+import BugReportIcon from "@mui/icons-material/BugReport";
 import { useLocation, useNavigate } from "react-router-dom";
 import { invokeIpc } from "../../utils";
 
@@ -78,7 +79,8 @@ const GameDetailComponent = () => {
     deleteGameAction,
     threshold,
     shadersMinVersion,
-    settings
+    settings,
+    currentVersion
   ] = useStore(state => [
     state.ryujinxShaders,
     state.ryujinxShaderVariants,
@@ -89,7 +91,8 @@ const GameDetailComponent = () => {
     state.deleteGameAction,
     state.threshold,
     state.shadersMinVersion,
-    state.settings
+    state.settings,
+    state.currentVersion
   ]);
   const [metaData, setMetaData]: [EShopTitleMeta, Function] = useState(null);
   const [compat, setCompat] = useState<GithubLabel[]>(null);
@@ -122,6 +125,27 @@ const GameDetailComponent = () => {
       ? `https://github.com/Ryubing/Compatibility/issues?q=is%3Aissue+is%3Aopen+${encodeURIComponent(_compatMode === "name" ? metaData.name : metaData.id)}`
       : "https://github.com/Ryubing/Compatibility/issues/new/choose"
     );
+  };
+
+  const buildShaderReportUrl = () => {
+    const fields: [string, string][] = [
+      ["template", "defective_shader_cache.yml"],
+      ["title", `[Shader cache] ${metaData.name}`],
+      ["game", metaData.name],
+      ["title-id", metaData.id.toUpperCase()]
+    ];
+    if (currentVersion) fields.push(["ryusak-version", currentVersion]);
+    const query = fields.map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join("&");
+    return `https://github.com/Casual-Gamer8001/RyuSAK/issues/new?${query}`;
+  };
+
+  const handleReportFaultyShaderClick = async () => {
+    await Swal.fire({
+      icon: "info",
+      text: t("reportFaultyShaderCacheInfo"),
+      allowOutsideClick: false
+    });
+    return shell.openExternal(buildShaderReportUrl());
   };
 
   useEffect(() => {
@@ -479,6 +503,19 @@ const GameDetailComponent = () => {
               </Box>
             </GridWithVerticalSeparator>
           </GridWithVerticalSeparator>
+
+          <Box mt={2}>
+            <Button
+              onClick={handleReportFaultyShaderClick}
+              variant="outlined"
+              color="warning"
+              fullWidth
+              disabled={ryusakShadersCount === 0}
+              startIcon={<BugReportIcon />}
+            >
+              {t("reportFaultyShaderCache")}
+            </Button>
+          </Box>
         </Grid>
 
         <Grid item xs={12}>

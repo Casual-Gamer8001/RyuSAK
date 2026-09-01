@@ -81,6 +81,8 @@
   "localShadersCount": "Anzahl der lokalen Shader",
   "ryusakShadersCount": "Anzahl der globalen Shader",
   "dlShaders": "Shader Cache herunterladen",
+  "reportFaultyShaderCache": "Fehlerhaften Shader Cache melden",
+  "reportFaultyShaderCacheInfo": "Dies öffnet einen vorausgefüllten Bericht auf GitHub in deinem Browser. Beschreibe, was mit diesem Shader Cache nicht stimmt, und sende ihn ab. Ein Betreuer prüft ihn und setzt ihn zurück, wenn er als fehlerhaft bestätigt wird. Ein kostenloses GitHub-Konto ist erforderlich.",
   "shareShaders": "Shader Cache teilen",
   "shaderUploadingUnavailable": "Shader-Upload ist derzeit nicht verfügbar",
   "launchGameForShaderVariants": "Starte dieses Spiel einmal in deinem Emulator und öffne dann diese Seite erneut, um seine Shader herunterzuladen.",

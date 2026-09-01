@@ -81,6 +81,8 @@
   "localShadersCount": "Quantità di shaders Locali",
   "ryusakShadersCount": "Quantità di shaders di RyuSAK",
   "dlShaders": "Scarica shaders",
+  "reportFaultyShaderCache": "Segnala shader cache difettoso",
+  "reportFaultyShaderCacheInfo": "Questo apre un rapporto precompilato su GitHub nel tuo browser. Descrivi cosa non va con questo shader cache e invialo. Un manutentore lo verificherà e lo ripristinerà se confermato difettoso. È richiesto un account GitHub gratuito.",
   "shareShaders": "Condividi shaders",
   "shaderUploadingUnavailable": "Il caricamento degli shader non è attualmente disponibile",
   "launchGameForShaderVariants": "Avvia questo gioco una volta nel tuo emulatore, poi riapri questa pagina per scaricarne gli shader.",

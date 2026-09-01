@@ -81,6 +81,8 @@
   "localShadersCount": "Lokal shaders count",
   "ryusakShadersCount": "RyuSAK shaders count",
   "dlShaders": "Ladda ner shaders",
+  "reportFaultyShaderCache": "Rapportera felaktig shader-cache",
+  "reportFaultyShaderCacheInfo": "Detta öppnar en förifylld rapport på GitHub i din webbläsare. Beskriv vad som är fel med denna shader-cache och skicka in den. En underhållare verifierar den och återställer den om den bekräftas vara felaktig. Ett gratis GitHub-konto krävs.",
   "shareShaders": "Dela shaders",
   "shaderUploadingUnavailable": "Uppladdning av shaders är inte tillgänglig just nu",
   "launchGameForShaderVariants": "Starta detta spel en gång i din emulator och öppna sedan den här sidan igen för att ladda ner dess shaders.",

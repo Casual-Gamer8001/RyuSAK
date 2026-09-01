@@ -81,6 +81,8 @@
   "localShadersCount": "Yerel shader sayısı",
   "ryusakShadersCount": "RyuSAK shader sayısı",
   "dlShaders": "Shader indir",
+  "reportFaultyShaderCache": "Hatalı shader önbelleğini bildir",
+  "reportFaultyShaderCacheInfo": "Bu, tarayıcınızda GitHub'da önceden doldurulmuş bir rapor açar. Bu shader önbelleğinde neyin yanlış gittiğini açıklayın ve gönderin. Bir sorumlu bunu doğrulayacak ve hatalı olduğu onaylanırsa eski sürüme geri alacaktır. Ücretsiz bir GitHub hesabı gereklidir.",
   "shareShaders": "Shader paylaş",
   "shaderUploadingUnavailable": "Shader yükleme şu anda kullanılamıyor",
   "launchGameForShaderVariants": "Bu oyunu emülatörünüzde bir kez başlatın, ardından shader'larını indirmek için bu sayfayı yeniden açın.",
