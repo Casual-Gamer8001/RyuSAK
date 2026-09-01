@@ -1,0 +1,89 @@
+name: Defective shader cache report
+description: Report that a shader cache downloaded from RyuSAK is broken or unhelpful for a specific game
+title: "[Shader cache] "
+labels: ["shader-cache"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this to report a **shader cache** (downloaded through RyuSAK) that is broken or does not help a specific game.
+
+        Every report is verifiable: given the **Title ID** below, a maintainer runs `shader-doctor inspect <titleId>` against the backend, which deterministically checks the published cache (corrupt, incomplete, wrong shader count, or an outdated shader codegen). You can run that same read-only check yourself — see the note at the bottom.
+  - type: input
+    id: game
+    attributes:
+      label: Game name
+      placeholder: "Super Mario Odyssey"
+    validations:
+      required: true
+  - type: input
+    id: title-id
+    attributes:
+      label: Title ID
+      description: The game's 16-character hex ID. RyuSAK shows it on the game page, and it is the game's folder name in your emulator's games directory (for example 0100000000010000).
+      placeholder: "0100000000010000"
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Shader platform
+      description: PC (Vulkan/SPIR-V) unless you are on macOS.
+      options:
+        - PC (Vulkan / SPIR-V)
+        - macOS
+    validations:
+      required: true
+  - type: dropdown
+    id: symptom
+    attributes:
+      label: What goes wrong after you download this shader cache?
+      options:
+        - The game crashes or will not boot
+        - Graphical glitches or artifacts
+        - Black screen
+        - Performance is worse than with no cache
+        - No improvement — shaders do not seem to be used
+        - Other (describe below)
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: What you saw, when it started, and anything that helps us reproduce it. Screenshots or a short clip help.
+    validations:
+      required: true
+  - type: input
+    id: ryusak-version
+    attributes:
+      label: RyuSAK version
+      placeholder: "1.7.2"
+    validations:
+      required: true
+  - type: input
+    id: emulator
+    attributes:
+      label: Emulator and version
+      description: For example "Ryubing 1.3.3" or "Ryujinx 1.1.x".
+    validations:
+      required: false
+  - type: textarea
+    id: self-check
+    attributes:
+      label: Optional — self verification
+      description: |
+        If you can run Node, you can pre-verify the cache yourself and paste the result here. From the shader repository:
+        `node scripts/shader-doctor.mjs inspect <titleId> --markdown`
+        This only reads public data and does not change anything.
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I downloaded this shader cache for this game through RyuSAK
+          required: true
+        - label: I searched existing issues and did not find a duplicate report for this Title ID
+          required: true
