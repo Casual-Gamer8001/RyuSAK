@@ -53,6 +53,14 @@ Common Flatpak data paths are:
 
 6. Return to Gaming Mode and launch RyuSAK from your Steam library.
 
+### macOS (Apple Silicon)
+Download `RyuSAK-<version>-arm64.dmg` on an Apple Silicon (M1 or newer) Mac.
+
+1. Open the `.dmg` and drag **RyuSAK** to your **Applications** folder.
+2. This community build is not signed with an Apple Developer certificate, so the first launch is blocked by Gatekeeper. To open it, **right-click (or Control-click) RyuSAK in Applications and choose Open**, then confirm **Open** in the dialog. You only need to do this once.
+   - If macOS still refuses, run `xattr -cr /Applications/RyuSAK.app` in Terminal to clear the download quarantine, then open it normally.
+3. In RyuSAK, use **Configuration** to select your Ryujinx/Ryubing data folder.
+
 ## Features
 * Add one or multiple Ryujinx/Ryubing data folders to manage different emulator installs
 * List your game library

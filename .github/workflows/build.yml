@@ -142,10 +142,105 @@ jobs:
           path: out/RyuSAK-*-steamdeck-linux-x64.zip
           if-no-files-found: error
 
-  # Tag builds -> publish a draft release with exactly the two curated assets.
+  # macOS (Apple Silicon / arm64). Runs on every push/PR to validate the build
+  # with a launch smoke test, and on tags to produce the release DMG (asset 3 of 3).
+  macos:
+    runs-on: macos-latest
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
+
+      - name: Setup NodeJS environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --include=dev
+
+      - name: Package app (darwin/arm64)
+        run: npm run build -- --platform darwin --arch arm64
+
+      - name: Ad-hoc codesign the app
+        run: |
+          set -euo pipefail
+          APP="out/RyuSAK-darwin-arm64/RyuSAK.app"
+          # arm64 apps must be at least ad-hoc signed to launch; no Apple account needed.
+          codesign --force --deep --sign - "$APP"
+          codesign --verify --deep --strict "$APP" || true
+
+      - name: Verify bundle and launch smoke test
+        run: |
+          set -uo pipefail
+          APP="out/RyuSAK-darwin-arm64/RyuSAK.app"
+          BIN="$APP/Contents/MacOS/RyuSAK"
+          if [ ! -x "$BIN" ]; then echo "Missing RyuSAK binary in app bundle"; exit 1; fi
+          echo "Arch:"; lipo -archs "$BIN" || file "$BIN"
+          echo "Version:"; /usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$APP/Contents/Info.plist"
+          echo "Launching RyuSAK for a startup smoke test..."
+          "$BIN" > /tmp/ryusak-launch.log 2>&1 &
+          PID=$!
+          sleep 25
+          if kill -0 "$PID" 2>/dev/null; then
+            echo "RyuSAK launched and stayed running."
+            kill "$PID" 2>/dev/null || true
+            wait "$PID" 2>/dev/null || true
+          else
+            echo "RyuSAK exited during startup. Log:"
+            cat /tmp/ryusak-launch.log || true
+            exit 1
+          fi
+
+      - name: Resolve version and verify it matches the tag
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        id: ver
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          tag="$GITHUB_REF_NAME"
+          if [ "v$version" != "$tag" ]; then
+            echo "package.json version ($version) does not match tag ($tag). Bump package.json before tagging." >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build DMG
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          set -uo pipefail
+          mkdir -p dist
+          DMG=""
+          # Preferred: electron-forge maker-dmg (matches upstream's polished layout).
+          if npm run make -- --platform darwin --arch arm64; then
+            DMG="$(find out/make -name '*.dmg' | head -n1 || true)"
+          fi
+          if [ -n "$DMG" ]; then
+            cp "$DMG" "dist/RyuSAK-${VERSION}-arm64.dmg"
+          else
+            # Fallback: build a plain drag-to-Applications DMG with hdiutil (no native deps).
+            echo "maker-dmg unavailable; falling back to hdiutil."
+            STAGE="$(mktemp -d)/RyuSAK"
+            mkdir -p "$STAGE"
+            cp -R "out/RyuSAK-darwin-arm64/RyuSAK.app" "$STAGE/RyuSAK.app"
+            ln -s /Applications "$STAGE/Applications"
+            hdiutil create -volname "RyuSAK" -srcfolder "$STAGE" -ov -format UDZO "dist/RyuSAK-${VERSION}-arm64.dmg"
+          fi
+          ls -l dist
+
+      - name: Upload DMG
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-dmg
+          path: dist/RyuSAK-*-arm64.dmg
+          if-no-files-found: error
+
+  # Tag builds -> publish a draft release with exactly the three curated assets.
   release:
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-    needs: [windows-installer, linux-zip]
+    needs: [windows-installer, linux-zip, macos]
     runs-on: ubuntu-latest
     steps:
       - name: Download installer
@@ -160,6 +255,12 @@ jobs:
           name: linux-zip
           path: assets
 
+      - name: Download macOS DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-dmg
+          path: assets
+
       - name: Compute release title version
         id: v
         run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
@@ -172,4 +273,5 @@ jobs:
           files: |
             assets/RyuSAK-*-Setup.exe
             assets/RyuSAK-*-steamdeck-linux-x64.zip
+            assets/RyuSAK-*-arm64.dmg
           fail_on_unmatched_files: true
