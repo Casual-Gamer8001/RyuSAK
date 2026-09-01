@@ -73,9 +73,9 @@ body:
     attributes:
       label: Optional — self verification
       description: |
-        If you can run Node, you can pre-verify the cache yourself and paste the result here. From the shader repository:
+        If you can run Node, please pre-verify the cache yourself and paste the result here. From the shader repository:
         `node scripts/shader-doctor.mjs inspect <titleId> --markdown`
-        This only reads public data and does not change anything.
+        This only reads public data and changes nothing. Its output includes a **cache fingerprint (SHA-256)** that lets a maintainer confirm they are looking at the exact cache you have and, if needed, verify a rollback with `shader-doctor triage <titleId>`.
     validations:
       required: false
   - type: checkboxes
