@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Support and general questions (Discord)
+    url: https://discord.gg/kKKFmnaZyc
+    about: Please ask for help and general questions on Discord rather than opening an issue.
+  - name: Latest release and downloads
+    url: https://github.com/Casual-Gamer8001/RyuSAK/releases/latest
+    about: Download the newest RyuSAK build for Windows, Steam Deck / Linux, and macOS.

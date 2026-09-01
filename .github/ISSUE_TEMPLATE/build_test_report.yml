@@ -1,0 +1,74 @@
+name: Build test report
+description: Report whether a RyuSAK build works on your platform (especially macOS or Steam Deck)
+title: "[Test report] "
+labels: ["test-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This community build of RyuSAK is checked automatically in CI, but **real-hardware reports from the community are what confirm a build actually works** — especially on **macOS** and **Steam Deck**, which the maintainers may not be able to test directly.
+
+        Downloaded a build and tried it? Please tell us how it went. Both good and bad reports are helpful.
+  - type: input
+    id: version
+    attributes:
+      label: RyuSAK version
+      description: The release or build number you tested (for example 1.7.2).
+      placeholder: "1.7.2"
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform tested
+      options:
+        - Windows
+        - Linux
+        - Steam Deck / SteamOS
+        - macOS (Apple Silicon)
+        - macOS (Intel)
+    validations:
+      required: true
+  - type: input
+    id: hardware
+    attributes:
+      label: Hardware and OS
+      description: For example "MacBook Air M2, macOS 15.1", "Steam Deck OLED, SteamOS 3.6", "Desktop PC, Windows 11".
+    validations:
+      required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: Overall result
+      options:
+        - Works — no problems
+        - Works with issues (describe below)
+        - Broken — could not use it
+    validations:
+      required: true
+  - type: checkboxes
+    id: worked
+    attributes:
+      label: What worked?
+      description: Check everything that worked for you. Leave the rest unchecked if it failed or you did not test it.
+      options:
+        - label: The app launched
+        - label: It detected my games / library
+        - label: I could download shaders
+        - label: I could share / upload shaders
+        - label: Installing a GameBanana mod worked
+        - label: The in-app update prompt worked
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Anything that did not work, error messages, screenshots, or notes. On macOS, please say whether Gatekeeper blocked the app and whether right-click → Open let you run it.
+    validations:
+      required: false
+  - type: checkboxes
+    id: ack
+    attributes:
+      label: Before submitting
+      options:
+        - label: I downloaded this build from the official Casual-Gamer8001/RyuSAK releases or CI artifacts
+          required: true

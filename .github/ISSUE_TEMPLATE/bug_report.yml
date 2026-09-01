@@ -1,0 +1,94 @@
+name: Bug report
+description: Report something in RyuSAK that is broken or behaving incorrectly
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve this community build of RyuSAK!
+
+        The version, platform, and logs below are what let us **reproduce and verify** the problem, so please fill in as much as you can.
+  - type: input
+    id: version
+    attributes:
+      label: RyuSAK version
+      description: Shown in the update banner and the release you downloaded (for example 1.7.2). Please make sure it is the latest release first.
+      placeholder: "1.7.2"
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Windows
+        - Linux
+        - Steam Deck / SteamOS
+        - macOS (Apple Silicon)
+        - macOS (Intel)
+    validations:
+      required: true
+  - type: input
+    id: os-version
+    attributes:
+      label: OS version
+      description: For example "Windows 11 23H2", "SteamOS 3.6", "macOS 15.1".
+    validations:
+      required: false
+  - type: dropdown
+    id: install-type
+    attributes:
+      label: How did you install RyuSAK?
+      options:
+        - Windows installer (standard)
+        - Windows installer (portable)
+        - Steam Deck / Linux zip
+        - macOS DMG
+        - Built from source
+        - Other / not sure
+    validations:
+      required: true
+  - type: dropdown
+    id: emulator
+    attributes:
+      label: Which emulator are you using with RyuSAK?
+      options:
+        - Ryubing
+        - Ryujinx
+        - Other / not sure
+    validations:
+      required: false
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug and what you expected to happen instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: How can we trigger this ourselves?
+      placeholder: |
+        1. Open RyuSAK
+        2. Click on ...
+        3. See the error
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs, error messages, and screenshots
+      description: Paste any error text or logs, and drag in screenshots. Even details that seem irrelevant can help us verify the issue.
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched the existing issues and did not find a duplicate
+          required: true
+        - label: I am on the latest RyuSAK release
+          required: true

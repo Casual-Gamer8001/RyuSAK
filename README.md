@@ -77,6 +77,17 @@ Download `RyuSAK-<version>-arm64.dmg` on an Apple Silicon (M1 or newer) Mac.
 
 In an effort to keep Nintendo from fondling my booty cheeks. Product keys and firmware download/install functionality have been removed from this community build.
 
+## Reporting issues & test results
+This is a community-driven fork, so anyone can help — and every report is verifiable because the templates ask for the exact version, platform, and logs.
+
+Open an issue from the [**New issue**](https://github.com/Casual-Gamer8001/RyuSAK/issues/new/choose) page and pick a template:
+
+- **Bug report** — something is broken or behaving incorrectly.
+- **Build test report** — you installed a build and want to tell us whether it works on your hardware. This is especially valuable for **macOS** and **Steam Deck**, which the maintainers may not be able to test directly, and it's how we confirm a build is good before promoting it to a full release.
+- **Feature request** — an idea or improvement.
+
+For general questions or help, use the [Discord](https://discord.gg/kKKFmnaZyc) instead of opening an issue.
+
 ## Contributing
 Requirements:
 * Node.js
