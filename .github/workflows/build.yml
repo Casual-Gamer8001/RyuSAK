@@ -41,6 +41,7 @@ jobs:
         with:
           name: windows-x64-package
           path: out/**/*
+          retention-days: 14
 
   # Tag builds -> Windows Inno Setup installer (release asset 1 of 2).
   windows-installer:
@@ -90,6 +91,7 @@ jobs:
           name: windows-installer
           path: dist/RyuSAK-*-Setup.exe
           if-no-files-found: error
+          retention-days: 14
 
   # Tag builds -> Linux/Steam Deck zip with native Unix permissions (release asset 2 of 2).
   linux-zip:
@@ -141,6 +143,7 @@ jobs:
           name: linux-zip
           path: out/RyuSAK-*-steamdeck-linux-x64.zip
           if-no-files-found: error
+          retention-days: 14
 
   # macOS (Apple Silicon / arm64). Runs on every push/PR to validate the build
   # with a launch smoke test, and on tags to produce the release DMG (asset 3 of 3).
@@ -238,6 +241,7 @@ jobs:
           name: macos-dmg
           path: dist/RyuSAK-*-arm64.dmg
           if-no-files-found: error
+          retention-days: 14
 
   # Tag builds -> publish a draft release with exactly the three curated assets.
   release:
