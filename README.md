@@ -1,4 +1,4 @@
-# RyuSAK — Community Build
+# RyuSAK Community Build
 
 ![showDownloads](https://img.shields.io/github/downloads/Casual-Gamer8001/RyuSAK/total?style=for-the-badge)
 ![showVersion](https://img.shields.io/github/v/release/Casual-Gamer8001/RyuSAK?style=for-the-badge)
