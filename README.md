@@ -1,7 +1,7 @@
-# RyuSAK 1.7.2 Community Build
+# RyuSAK — Community Build
 
 ![showDownloads](https://img.shields.io/github/downloads/Casual-Gamer8001/RyuSAK/total?style=for-the-badge)
-![showVersion](https://img.shields.io/badge/version-1.7.2-blue?style=for-the-badge)
+![showVersion](https://img.shields.io/github/v/release/Casual-Gamer8001/RyuSAK?style=for-the-badge)
 ![showLicense](https://img.shields.io/github/license/Casual-Gamer8001/RyuSAK?style=for-the-badge)
 
 <p align="center">
