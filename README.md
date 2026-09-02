@@ -74,18 +74,18 @@ Download `RyuSAK-<version>-arm64.dmg` on an Apple Silicon (M1 or newer) Mac.
 * Install supported GameBanana mods directly into the emulator mods folder
 * Get clear manual-install guidance when a GameBanana mod cannot be safely installed automatically
 * Adjust game icon size with a polished live slider using friendly size labels
-* Update in place from within the app — a silent installer with a progress window on Windows, and an automatic download-and-relaunch on Linux/Steam Deck
+* Update in place from within the app. Windows gets a silent installer with a progress window, while Linux and Steam Deck download and relaunch automatically
 * Run on Steam Deck/SteamOS using the Linux x64 test package
 
 ## Reporting issues & test results
-This is a community-driven fork, so anyone can help — and every report is verifiable because the templates ask for the exact version, platform, and logs.
+This is a community-driven fork, so anyone can help. Every report stays verifiable because the templates ask for the exact version, platform, and logs.
 
 Open an issue from the [**New issue**](https://github.com/Casual-Gamer8001/RyuSAK/issues/new/choose) page and pick a template:
 
-- **Bug report** — something is broken or behaving incorrectly.
-- **Build test report** — you installed a build and want to tell us whether it works on your hardware. This is especially valuable for **macOS** and **Steam Deck**, which the maintainers may not be able to test directly, and it's how we confirm a build is good before promoting it to a full release.
-- **Defective shader cache report** — a shader cache you downloaded is broken or does not help a specific game. Reports include the game's **Title ID**, which lets a maintainer deterministically verify the published cache (corrupt, incomplete, wrong shader count, or an outdated shader codegen) — and anyone can reproduce that read-only check.
-- **Feature request** — an idea or improvement.
+- **Bug report** when something is broken or behaving incorrectly.
+- **Build test report** when you've installed a build and want to tell us whether it works on your hardware. This is especially valuable for **macOS** and **Steam Deck**, which the maintainers may not be able to test directly, and it's how we confirm a build is good before promoting it to a full release.
+- **Defective shader cache report** when a shader cache you downloaded is broken or does not help a specific game. Reports include the game's **Title ID**, which lets a maintainer deterministically verify the published cache (corrupt, incomplete, wrong shader count, or an outdated shader codegen), and anyone can reproduce that read-only check.
+- **Feature request** for an idea or improvement.
 
 For general questions or help, use the [Discord](https://discord.gg/kKKFmnaZyc) instead of opening an issue.
 
