@@ -9,6 +9,7 @@
 </p>
 
 This is a community-maintained fork of the original [Ecks1337/RyuSAK](https://github.com/Ecks1337/RyuSAK) project.
+In an effort to keep Nintendo from fondling my booty cheeks. Product keys and firmware download/install functionality have been removed from this community build.
 
 ## Installation
 Download RyuSAK from the [v1.7.2 release](https://github.com/Casual-Gamer8001/RyuSAK/releases/tag/v1.7.2).
@@ -74,8 +75,6 @@ Download `RyuSAK-<version>-arm64.dmg` on an Apple Silicon (M1 or newer) Mac.
 * Adjust game icon size with a polished live slider using friendly size labels
 * Update in place from within the app — a silent installer with a progress window on Windows, and an automatic download-and-relaunch on Linux/Steam Deck
 * Run on Steam Deck/SteamOS using the Linux x64 test package
-
-In an effort to keep Nintendo from fondling my booty cheeks. Product keys and firmware download/install functionality have been removed from this community build.
 
 ## Reporting issues & test results
 This is a community-driven fork, so anyone can help — and every report is verifiable because the templates ask for the exact version, platform, and logs.
