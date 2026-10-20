@@ -36,6 +36,8 @@ SetupIconFile={#IconFile}
 UninstallDisplayIcon={app}\RyuSAK.exe
 ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequired=lowest
+; Only one setup at a time (the in-app updater likewise runs a single update helper per install).
+SetupMutex=RyuSAKSetupMutex
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -52,6 +54,10 @@ Name: "{app}\electron_cache"; Check: IsPortableMode
 
 [InstallDelete]
 Type: files; Name: "{app}\portable"; Check: IsStandardMode
+
+[UninstallDelete]
+; In-app update downloads and logs of a standard install (portable installs keep them in electron_cache).
+Type: filesandordirs; Name: "{localappdata}\RyuSAK\updates"; Check: IsStandardMode
 
 [Icons]
 Name: "{group}\RyuSAK"; Filename: "{app}\RyuSAK.exe"; WorkingDir: "{app}"; Check: IsStandardMode

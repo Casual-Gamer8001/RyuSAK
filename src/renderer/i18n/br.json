@@ -117,5 +117,16 @@
   "updateAvailableManual": "Você tem a versão v{currentVersion}. A versão v{latestVersion} está disponível.",
   "updateNow": "Atualizar agora",
   "updateLater": "Atualizar depois",
-  "updateFailed": "Falha na atualização"
+  "updateFailed": "Falha na atualização",
+  "updateInProgressTitle": "Atualizando o RyuSAK",
+  "updatePreparing": "Verificando a vers?o mais recente...",
+  "updateDownloadingProgress": "Baixando v{version}: {percent}% ({received} de {total} MB)",
+  "updateVerified": "Download verificado.",
+  "updateHandoff": "Iniciando o atualizador. O RyuSAK ser? fechado e reaberto quando a atualiza??o terminar.",
+  "updateInstalling": "Instalando a atualiza??o...",
+  "updateSucceeded": "O RyuSAK foi atualizado para a v{version}.",
+  "updateRolledBack": "A atualiza??o para a v{version} n?o foi conclu?da, ent?o o RyuSAK restaurou a vers?o anterior.",
+  "updateAborted": "A atualiza??o para a v{version} foi cancelada antes de qualquer arquivo ser alterado.",
+  "updateRecoveryNeeded": "A atualiza??o para a v{version} falhou e alguns arquivos n?o puderam ser restaurados. Os arquivos originais foram mantidos em {path}.",
+  "updateOpenLog": "Abrir log"
 }

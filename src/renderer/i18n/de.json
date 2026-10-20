@@ -117,5 +117,16 @@
   "updateAvailableManual": "Du hast Version v{currentVersion}. Version v{latestVersion} ist verfügbar.",
   "updateNow": "Jetzt aktualisieren",
   "updateLater": "Später aktualisieren",
-  "updateFailed": "Update fehlgeschlagen"
+  "updateFailed": "Update fehlgeschlagen",
+  "updateInProgressTitle": "RyuSAK wird aktualisiert",
+  "updatePreparing": "Neueste Version wird gepr?ft...",
+  "updateDownloadingProgress": "v{version} wird heruntergeladen: {percent}% ({received} von {total} MB)",
+  "updateVerified": "Download ?berpr?ft.",
+  "updateHandoff": "Der Updater wird gestartet. RyuSAK wird geschlossen und nach dem Update wieder ge?ffnet.",
+  "updateInstalling": "Update wird installiert...",
+  "updateSucceeded": "RyuSAK wurde auf v{version} aktualisiert.",
+  "updateRolledBack": "Das Update auf v{version} wurde nicht abgeschlossen, daher hat RyuSAK die vorherige Version wiederhergestellt.",
+  "updateAborted": "Das Update auf v{version} wurde abgebrochen, bevor Dateien ge?ndert wurden.",
+  "updateRecoveryNeeded": "Das Update auf v{version} ist fehlgeschlagen und einige Dateien konnten nicht wiederhergestellt werden. Die Originaldateien liegen in {path}.",
+  "updateOpenLog": "Protokoll ?ffnen"
 }

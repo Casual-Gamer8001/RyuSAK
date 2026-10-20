@@ -33,6 +33,9 @@ export enum OTHER_URLS {
   GAME_BANANA_MOD_FILES   = "https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&itemid={id}&fields=name,Files().aFiles()",
 }
 
+// RYUSAK_UPDATE_FEED_URL points a packaged build at a local test feed when validating the updater.
+export const getReleaseFeedUrl = () => process.env.RYUSAK_UPDATE_FEED_URL || OTHER_URLS.RELEASE_INFO;
+
 class HttpService {
   private httpsAgent: https.Agent;
   private useMacUrl: boolean;
@@ -66,13 +69,21 @@ class HttpService {
   }
 
   protected fetch(url: string, req: RequestInit = { }) {
-    req.agent ??= this.httpsAgent;
+    // The HTTPS (proxy) agent only fits https URLs; plain http is only used by local updater test feeds.
+    if (/^https:/i.test(url)) {
+      req.agent ??= this.httpsAgent;
+    }
     req.headers = {
       "User-Agent": USER_AGENT,
       ...req.headers
     };
 
     return fetch(url, req);
+  }
+
+  // Plain request through the configured proxy, for callers that need the raw response (e.g. the updater).
+  public request(url: string, req: RequestInit = { }) {
+    return this.fetch(url, req);
   }
 
   // Trigger HTTP request using an exponential backoff strategy
@@ -209,7 +220,7 @@ class HttpService {
   public async getLatestApplicationVersion() {
     // Do not use this.get because we do not want exponential backoff strategy since GitHub api is limited to 10 requests per minute for unauthenticated requests
     try {
-      const response = await this.fetch(OTHER_URLS.RELEASE_INFO);
+      const response = await this.fetch(getReleaseFeedUrl());
 
       if (response.status == 200) {
         const responseJson = await response.json() as any;

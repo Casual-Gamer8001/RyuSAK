@@ -117,5 +117,16 @@
   "updateAvailableManual": "Hai la versione v{currentVersion}. È disponibile la versione v{latestVersion}.",
   "updateNow": "Aggiorna ora",
   "updateLater": "Aggiorna più tardi",
-  "updateFailed": "Aggiornamento non riuscito"
+  "updateFailed": "Aggiornamento non riuscito",
+  "updateInProgressTitle": "Aggiornamento di RyuSAK",
+  "updatePreparing": "Controllo dell'ultima versione...",
+  "updateDownloadingProgress": "Download della v{version}: {percent}% ({received} di {total} MB)",
+  "updateVerified": "Download verificato.",
+  "updateHandoff": "Avvio del programma di aggiornamento. RyuSAK verr? chiuso e riaperto al termine dell'aggiornamento.",
+  "updateInstalling": "Installazione dell'aggiornamento...",
+  "updateSucceeded": "RyuSAK ? stato aggiornato alla v{version}.",
+  "updateRolledBack": "L'aggiornamento alla v{version} non ? stato completato, quindi RyuSAK ha ripristinato la versione precedente.",
+  "updateAborted": "L'aggiornamento alla v{version} ? stato annullato prima di modificare qualsiasi file.",
+  "updateRecoveryNeeded": "L'aggiornamento alla v{version} non ? riuscito e alcuni file non sono stati ripristinati. I file originali sono stati conservati in {path}.",
+  "updateOpenLog": "Apri log"
 }

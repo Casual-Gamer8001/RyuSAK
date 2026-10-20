@@ -74,7 +74,7 @@ Download `RyuSAK-<version>-arm64.dmg` on an Apple Silicon (M1 or newer) Mac.
 * Install supported GameBanana mods directly into the emulator mods folder
 * Get clear manual-install guidance when a GameBanana mod cannot be safely installed automatically
 * Adjust game icon size with a polished live slider using friendly size labels
-* Update in place from within the app. Windows gets a silent installer with a progress window, while Linux and Steam Deck download and relaunch automatically
+* Update in place from within the app. Downloads are checked against the release's SHA-256 before anything is installed. On Windows a small update helper takes over while RyuSAK is closed: it backs up the install, runs the silent installer with a progress window, and restores the previous version if anything fails. Linux and Steam Deck apply the update the same way, with a full rollback, and relaunch automatically
 * Run on Steam Deck/SteamOS using the Linux x64 test package
 
 ## Reporting issues & test results
@@ -89,6 +89,14 @@ Open an issue from the [**New issue**](https://github.com/Casual-Gamer8001/RyuSA
 
 For general questions or help, use the [Discord](https://discord.gg/kKKFmnaZyc) instead of opening an issue.
 
+### Update logs
+If an in-app update fails, attach its logs. Each update keeps them in its own folder:
+
+- **Windows (standard install):** `%LOCALAPPDATA%\RyuSAK\updates\<version>\`
+- **Portable installs, Linux and Steam Deck:** `electron_cache/updates/<version>/` next to RyuSAK
+
+`update-bootstrap.log` covers the download and verification, `apply-update.log` covers installing (and any rollback), and `installer.log` is the Windows setup log.
+
 ## Contributing
 Requirements:
 * Node.js
@@ -98,7 +106,7 @@ Install dependencies: `npm install --include=dev`
 
 Run local build: `npm start`
 
-Package a Windows build: `npm run build`
+Package a Windows build: `npm run build` (this also compiles the Windows update helper in `updater/windows` with the .NET Framework 4 C# compiler that comes with Windows)
 
 ## Credits
 * Ecks1337 and contributors for the original RyuSAK project

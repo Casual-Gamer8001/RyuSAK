@@ -117,5 +117,16 @@
   "updateAvailableManual": "Sürüm v{currentVersion} kullanıyorsunuz. Sürüm v{latestVersion} mevcut.",
   "updateNow": "Şimdi güncelle",
   "updateLater": "Daha sonra güncelle",
-  "updateFailed": "Güncelleme başarısız oldu"
+  "updateFailed": "Güncelleme başarısız oldu",
+  "updateInProgressTitle": "RyuSAK g?ncelleniyor",
+  "updatePreparing": "En son s?r?m kontrol ediliyor...",
+  "updateDownloadingProgress": "v{version} indiriliyor: %{percent} ({received} / {total} MB)",
+  "updateVerified": "?ndirme do?ruland?.",
+  "updateHandoff": "G?ncelleyici ba?lat?l?yor. RyuSAK kapanacak ve g?ncelleme bitince yeniden a??lacak.",
+  "updateInstalling": "G?ncelleme y?kleniyor...",
+  "updateSucceeded": "RyuSAK v{version} s?r?m?ne g?ncellendi.",
+  "updateRolledBack": "v{version} g?ncellemesi tamamlanamad?, bu y?zden RyuSAK ?nceki s?r?m? geri y?kledi.",
+  "updateAborted": "v{version} g?ncellemesi hi?bir dosya de?i?tirilmeden iptal edildi.",
+  "updateRecoveryNeeded": "v{version} g?ncellemesi ba?ar?s?z oldu ve baz? dosyalar geri y?klenemedi. Orijinal dosyalar {path} konumunda sakland?.",
+  "updateOpenLog": "G?nl??? a?"
 }

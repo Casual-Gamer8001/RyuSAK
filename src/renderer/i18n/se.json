@@ -117,5 +117,16 @@
   "updateAvailableManual": "Du har version v{currentVersion}. Version v{latestVersion} är tillgänglig.",
   "updateNow": "Uppdatera nu",
   "updateLater": "Uppdatera senare",
-  "updateFailed": "Uppdateringen misslyckades"
+  "updateFailed": "Uppdateringen misslyckades",
+  "updateInProgressTitle": "Uppdaterar RyuSAK",
+  "updatePreparing": "S?ker efter den senaste versionen...",
+  "updateDownloadingProgress": "Laddar ned v{version}: {percent} % ({received} av {total} MB)",
+  "updateVerified": "Nedladdningen ?r verifierad.",
+  "updateHandoff": "Startar uppdateraren. RyuSAK st?ngs och ?ppnas igen n?r uppdateringen ?r klar.",
+  "updateInstalling": "Installerar uppdateringen...",
+  "updateSucceeded": "RyuSAK har uppdaterats till v{version}.",
+  "updateRolledBack": "Uppdateringen till v{version} slutf?rdes inte, s? RyuSAK ?terst?llde den tidigare versionen.",
+  "updateAborted": "Uppdateringen till v{version} avbr?ts innan n?gra filer ?ndrades.",
+  "updateRecoveryNeeded": "Uppdateringen till v{version} misslyckades och vissa filer kunde inte ?terst?llas. Originalfilerna sparades i {path}.",
+  "updateOpenLog": "?ppna logg"
 }

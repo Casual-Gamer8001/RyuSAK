@@ -1,5 +1,7 @@
 const fs = require("fs-extra");
+const path = require("path");
 const Zip = require("adm-zip");
+const { buildUpdateHelper } = require("./scripts/build-update-helper");
 
 module.exports = {
   "forge": "./forge.config.js",
@@ -29,6 +31,18 @@ module.exports = {
     ]
   ],
   "hooks": {
+    // Windows builds ship the update helper and its build receipt in resources/updater.
+    "packageAfterCopy": async (_, buildPath, __, platform) => {
+      if (platform !== "win32") {
+        return;
+      }
+
+      const { helperPath, receiptPath } = buildUpdateHelper();
+      const updaterDir = path.resolve(buildPath, "..", "updater");
+      fs.ensureDirSync(updaterDir);
+      fs.copySync(helperPath, path.join(updaterDir, path.basename(helperPath)));
+      fs.copySync(receiptPath, path.join(updaterDir, path.basename(receiptPath)));
+    },
     "postMake": async (_, makeResults) => {
       const zipPath = makeResults.map(result => result.artifacts).flat().find(path => path.endsWith(".zip"));
       if (zipPath) {
