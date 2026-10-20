@@ -13,10 +13,10 @@ This is a community-maintained fork of the original [Ecks1337/RyuSAK](https://gi
 In an effort to keep Nintendo from fondling my booty cheeks. Product keys and firmware download/install functionality have been removed from this community build.
 
 ## Installation
-Download RyuSAK from the [v1.7.2 release](https://github.com/Casual-Gamer8001/RyuSAK/releases/tag/v1.7.2).
+Download RyuSAK from the [v1.7.3 release](https://github.com/Casual-Gamer8001/RyuSAK/releases/tag/v1.7.3).
 
 ### Windows
-Download `RyuSAK-1.7.2-Setup.exe`. The setup wizard asks whether you want a standard install or a portable install before you choose the install folder.
+Download `RyuSAK-1.7.3-Setup.exe`. The setup wizard asks whether you want a standard install or a portable install before you choose the install folder.
 
 #### Standard install
 Choose **Standard install** in setup to store RyuSAK settings in your Windows user profile.
@@ -25,7 +25,7 @@ Choose **Standard install** in setup to store RyuSAK settings in your Windows us
 Choose **Portable install** in setup to create the `portable` marker and keep settings in an `electron_cache` folder next to `RyuSAK.exe`.
 
 ### Steam Deck / SteamOS
-Download `RyuSAK-1.7.2-steamdeck-linux-x64.zip` on the Steam Deck.
+Download `RyuSAK-1.7.3-steamdeck-linux-x64.zip` on the Steam Deck.
 
 1. Switch to **Desktop Mode**.
 2. Extract the ZIP file.
@@ -56,7 +56,7 @@ Common Flatpak data paths are:
 6. Return to Gaming Mode and launch RyuSAK from your Steam library.
 
 ### macOS (Apple Silicon)
-Download `RyuSAK-<version>-arm64.dmg` on an Apple Silicon (M1 or newer) Mac.
+Download `RyuSAK-1.7.3-arm64.dmg` on an Apple Silicon (M1 or newer) Mac.
 
 1. Open the `.dmg` and drag **RyuSAK** to your **Applications** folder.
 2. This community build is not signed with an Apple Developer certificate, so the first launch is blocked by Gatekeeper. To open it, **right-click (or Control-click) RyuSAK in Applications and choose Open**, then confirm **Open** in the dialog. You only need to do this once.
