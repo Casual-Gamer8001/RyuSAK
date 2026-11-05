@@ -13,7 +13,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import useStore from "../../actions/state";
 import { shell } from "electron";
 import useTranslation from "../../i18n/I18nService";
-import { GithubIssue, GithubLabel, EShopTitleMeta, LS_KEYS } from "../../../types";
+import { EmulatorKind, GithubIssue, GithubLabel, EShopTitleMeta, LS_KEYS } from "../../../types";
 import Swal from "sweetalert2";
 import InfoIcon from "@mui/icons-material/Info";
 import defaultIcon from "../../resources/default_icon.jpg";
@@ -23,11 +23,13 @@ import GameBananaModsComponent from "../GameBananaModsComponent";
 import DeleteIcon from "@mui/icons-material/Delete";
 import BugReportIcon from "@mui/icons-material/BugReport";
 import { useLocation, useNavigate } from "react-router-dom";
-import { invokeIpc } from "../../utils";
+import { fillPlaceholders, invokeIpc } from "../../utils";
+import { EMULATOR_LABELS, normalizeKind, supportsCompatibilityData, supportsShaderSharing } from "../../../emulators";
 
 interface IGameDetailProps {
   titleId: string;
   dataPath: string;
+  emulator?: EmulatorKind;
 }
 
 const GridWithVerticalSeparator = styled(MuiGrid)(({ theme }) => ({
@@ -69,6 +71,9 @@ type SteamGridDbCoverSearchResult = {
 const GameDetailComponent = () => {
   const { state } = useLocation();
   const { titleId, dataPath } = state as IGameDetailProps;
+  const emulator = normalizeKind((state as IGameDetailProps).emulator);
+  const hasShaderSharing = supportsShaderSharing(emulator);
+  const hasCompatibilityData = supportsCompatibilityData(emulator);
   const [
     ryujinxShaders,
     ryujinxShaderVariants,
@@ -149,11 +154,15 @@ const GameDetailComponent = () => {
   };
 
   useEffect(() => {
-    invokeIpc("build-metadata-from-titleId", titleId, dataPath).then(d => setMetaData(d));
-    refreshShaderIndexAction();
-    invokeIpc("getRyujinxCompatibility", titleId).then(extractCompatibilityLabels);
-    invokeIpc("count-shaders", titleId, dataPath, shadersMinVersion).then(setLocalShadersCount);
-    invokeIpc("get-shader-cache-key", titleId, dataPath).then(setLocalShaderCacheKey);
+    invokeIpc("build-metadata-from-titleId", titleId, dataPath, emulator).then(d => setMetaData(d));
+    if (hasCompatibilityData) {
+      invokeIpc("getRyujinxCompatibility", titleId).then(extractCompatibilityLabels);
+    }
+    if (hasShaderSharing) {
+      refreshShaderIndexAction();
+      invokeIpc("count-shaders", titleId, dataPath, shadersMinVersion).then(setLocalShadersCount);
+      invokeIpc("get-shader-cache-key", titleId, dataPath).then(setLocalShaderCacheKey);
+    }
     setCustomCoverUrl(getJsonLocalStorage<{ [key: string]: string }>(LS_KEYS.COVER_OVERRIDES, {})[titleId] || "");
   }, [titleId, needRefreshShaders]);
 
@@ -208,7 +217,7 @@ const GameDetailComponent = () => {
     if (!result.isConfirmed) return;
 
     const value = `${result.value || ""}`.trim();
-    const updatedMeta = await invokeIpc("set-title-override", metaData.id, value);
+    const updatedMeta = await invokeIpc("set-title-override", metaData.id, value, dataPath, emulator);
     setMetaData(updatedMeta);
   };
 
@@ -359,7 +368,7 @@ const GameDetailComponent = () => {
           <Button
             variant="contained"
             color="error"
-            onClick={() => deleteGameAction(metaData.id, dataPath).then(confirmed => confirmed && navigate(-1))}
+            onClick={() => deleteGameAction(metaData.id, dataPath, emulator).then(confirmed => confirmed && navigate(-1))}
             startIcon={<DeleteIcon />}
           >
             {t("deleteGame")}
@@ -370,13 +379,17 @@ const GameDetailComponent = () => {
       <Divider />
       <br />
 
-      <div style={{ height: 70 }}>
-        {
-          (compat !== null)
-            ? renderCompatibilityData()
-            : (<Alert severity="info">Loading ...</Alert>)
-        }
-      </div>
+      {
+        hasCompatibilityData && (
+          <div style={{ height: 70 }}>
+            {
+              (compat !== null)
+                ? renderCompatibilityData()
+                : (<Alert severity="info">Loading ...</Alert>)
+            }
+          </div>
+        )
+      }
 
       <Grid container mt={0}>
         <Grid item xs={2}>
@@ -408,7 +421,7 @@ const GameDetailComponent = () => {
         <Grid item xs={4} p={1} pl={2}>
           <p style={{ marginTop: 0 }}>
             <Button
-              onClick={() => invokeIpc("openFolderForGame", titleId, "shaders", dataPath)}
+              onClick={() => invokeIpc("openFolderForGame", titleId, "shaders", dataPath, emulator)}
               variant="contained"
               fullWidth
             >
@@ -417,7 +430,7 @@ const GameDetailComponent = () => {
           </p>
           <p>
             <Button
-              onClick={() => invokeIpc("openFolderForGame", titleId, "mods", dataPath)}
+              onClick={() => invokeIpc("openFolderForGame", titleId, "mods", dataPath, emulator)}
               variant="contained"
               fullWidth
             >
@@ -426,6 +439,19 @@ const GameDetailComponent = () => {
           </p>
         </Grid>
         <Grid item xs={6} pl={3} pr={3} style={{ position: "relative", top: -10 }}>
+          {
+            !hasShaderSharing && (
+              <>
+                <h3 style={{ margin: "0 auto" }}>{t("shaders")}</h3>
+                <Divider />
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  {fillPlaceholders(t("shadersRyujinxOnly"), { emulator: EMULATOR_LABELS[emulator] })}
+                </Alert>
+              </>
+            )
+          }
+          {
+            hasShaderSharing && (<>
           <Grid container>
             <Grid item xs={3}>
               <h3 style={{ margin: "0 auto" }}>
@@ -516,10 +542,12 @@ const GameDetailComponent = () => {
               {t("reportFaultyShaderCache")}
             </Button>
           </Box>
+            </>)
+          }
         </Grid>
 
         <Grid item xs={12}>
-          <GameBananaModsComponent titleId={metaData?.id} titleName={metaData?.name} dataPath={dataPath} />
+          <GameBananaModsComponent titleId={metaData?.id} titleName={metaData?.name} dataPath={dataPath} emulator={emulator} />
         </Grid>
       </Grid>
     </Box>

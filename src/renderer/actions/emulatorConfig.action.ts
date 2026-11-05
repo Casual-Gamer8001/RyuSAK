@@ -1,15 +1,18 @@
 import { GetState, SetState } from "zustand/vanilla";
 import { IAlert } from "./alert.action";
-import { RyujinxConfigMeta, RyusakEmulatorGame, LS_KEYS } from "../../types";
+import { EmulatorConfigMeta, EmulatorKind, RyusakEmulatorGame, LS_KEYS } from "../../types";
 import Swal from "sweetalert2";
 import { i18n } from "../app";
-import { invokeIpc } from "../utils";
+import { fillPlaceholders, invokeIpc } from "../utils";
+import { EMULATOR_LABELS, EMULATOR_PROGRAM_NAMES, isEdenFamily, kindOf, normalizeKind } from "../../emulators";
 
 export interface IEmulatorConfig {
   addNewEmulatorConfigAction: () => void;
-  ryujinxConfigs: RyujinxConfigMeta[];
-  selectedConfig: RyujinxConfigMeta;
-  setSelectConfigAction: (selectedConfig: RyujinxConfigMeta) => void,
+  emulatorConfigs: EmulatorConfigMeta[];
+  currentEmulator: EmulatorKind;
+  selectedConfig: EmulatorConfigMeta;
+  switchEmulatorAction: (emulator: EmulatorKind) => void,
+  setSelectConfigAction: (selectedConfig: EmulatorConfigMeta) => void,
   removeEmulatorConfigAction: (path: string) => void,
   renameEmulatorConfigAction: (path: string) => void,
   changeEmulatorConfigPathAction: (path: string) => void,
@@ -17,36 +20,84 @@ export interface IEmulatorConfig {
   emulatorGames: RyusakEmulatorGame[];
 }
 
-const configuredEmulators: IEmulatorConfig["ryujinxConfigs"] = JSON.parse(localStorage.getItem(LS_KEYS.CONFIG)) || [];
+// Ryujinx keeps its original key so existing installs keep their selected configuration.
+export const selectedConfigKey = (emulator: EmulatorKind) => emulator === "ryujinx" ? "ryu-selected" : `${emulator}-selected`;
+
+const DEFAULT_CONFIG_NAME_KEYS: Record<EmulatorKind, string> = {
+  ryujinx: "ryuDefault",
+  eden: "edenDefault",
+  eglantine: "eglantineDefault"
+};
+
+// Configurations saved before multi-emulator support have no emulator field and belong to Ryujinx.
+const configuredEmulators: EmulatorConfigMeta[] = ((JSON.parse(localStorage.getItem(LS_KEYS.CONFIG)) || []) as EmulatorConfigMeta[])
+  .map(config => ({ ...config, emulator: kindOf(config) }));
+
+const saveConfigs = (configs: EmulatorConfigMeta[]) => localStorage.setItem(LS_KEYS.CONFIG, JSON.stringify(configs));
+
+const isConfigFor = (config: EmulatorConfigMeta, emulator: EmulatorKind, path: string) => kindOf(config) === emulator && config.path === path;
 
 const emulatorConfig = (set: SetState<IEmulatorConfig>, get: GetState<Partial<IAlert & IEmulatorConfig>>): IEmulatorConfig => ({
-  ryujinxConfigs: configuredEmulators,
+  emulatorConfigs: configuredEmulators,
+  currentEmulator: normalizeKind(localStorage.getItem(LS_KEYS.TAB)),
   emulatorGames: [] as RyusakEmulatorGame[],
-  selectedConfig: null as RyujinxConfigMeta,
-  setSelectConfigAction: (selectedConfig: RyujinxConfigMeta = null) => {
+  selectedConfig: null as EmulatorConfigMeta,
+  switchEmulatorAction: (emulator: EmulatorKind) => {
+    if (emulator === get().currentEmulator) {
+      return;
+    }
+
+    localStorage.setItem(LS_KEYS.TAB, emulator);
+    return set({ currentEmulator: emulator, selectedConfig: null });
+  },
+  setSelectConfigAction: (selectedConfig: EmulatorConfigMeta = null) => {
     if (!selectedConfig) {
       return;
     }
 
-    localStorage.setItem("ryu-selected", selectedConfig.path);
+    localStorage.setItem(selectedConfigKey(kindOf(selectedConfig)), selectedConfig.path);
     return set({ selectedConfig });
   },
   addNewEmulatorConfigAction: async () => {
-    await Swal.fire({
-      icon: "info",
-      text: i18n.t(process.platform === "linux" ? "pickRyuDataPathLinux" : "pickRyuDataPath")
-    });
+    const emulator = get().currentEmulator;
+    let configPath: string;
 
-    const response = await invokeIpc("get-directory");
+    if (isEdenFamily(emulator)) {
+      await Swal.fire({
+        icon: "info",
+        text: fillPlaceholders(i18n.t("pickEdenFamilyProgram"), {
+          emulator: EMULATOR_LABELS[emulator],
+          program: EMULATOR_PROGRAM_NAMES[emulator]
+        })
+      });
 
-    if (typeof response === "object") {
-      get().openAlertAction("error", response.code);
-      return null;
+      const response = await invokeIpc("pick-emulator-program", emulator);
+
+      if ("error" in response) {
+        get().openAlertAction("error", response.code);
+        return null;
+      }
+
+      configPath = response.path;
+    } else {
+      await Swal.fire({
+        icon: "info",
+        text: i18n.t(process.platform === "linux" ? "pickRyuDataPathLinux" : "pickRyuDataPath")
+      });
+
+      const response = await invokeIpc("get-directory");
+
+      if (typeof response === "object") {
+        get().openAlertAction("error", response.code);
+        return null;
+      }
+
+      configPath = response;
     }
 
-    const ryujinxConfigs = get().ryujinxConfigs || [];
+    const emulatorConfigs = get().emulatorConfigs || [];
 
-    if (ryujinxConfigs.find(item => item.path === response)) {
+    if (emulatorConfigs.find(item => isConfigFor(item, emulator, configPath))) {
       get().openAlertAction("error", "EMULATOR_PATH_ALREADY_EXISTS");
       return null;
     }
@@ -67,26 +118,26 @@ const emulatorConfig = (set: SetState<IEmulatorConfig>, get: GetState<Partial<IA
       }
 
       if (value && value.length > 0) {
-        const newConfig: RyujinxConfigMeta = {
-          path: response,
-          name: value
+        const newConfig: EmulatorConfigMeta = {
+          path: configPath,
+          name: value,
+          emulator
         };
-        ryujinxConfigs.push(newConfig);
-        localStorage.setItem("ryu-selected", newConfig.path);
-        localStorage.setItem(LS_KEYS.CONFIG, JSON.stringify(ryujinxConfigs));
-        return set({ ryujinxConfigs, selectedConfig: newConfig });
+        const updatedConfigs = [...emulatorConfigs, newConfig];
+        localStorage.setItem(selectedConfigKey(emulator), newConfig.path);
+        saveConfigs(updatedConfigs);
+        return set({ emulatorConfigs: updatedConfigs, selectedConfig: newConfig });
       }
     }
   },
   removeEmulatorConfigAction: async (path) => {
-    const configs = get().ryujinxConfigs;
-    const index = configs.findIndex(item => item.path === path);
+    const emulator = get().currentEmulator;
+    const configs = get().emulatorConfigs;
+    const config = configs.find(item => isConfigFor(item, emulator, path));
 
-    if (index === -1) {
+    if (!config) {
       return null;
     }
-
-    const config = configs[index];
 
     const { isConfirmed } = await Swal.fire({
       icon: "warning",
@@ -101,13 +152,14 @@ const emulatorConfig = (set: SetState<IEmulatorConfig>, get: GetState<Partial<IA
       return null;
     }
 
-    configs.splice(index, 1);
-    localStorage.setItem(LS_KEYS.CONFIG, JSON.stringify(configs));
-    return set({ ryujinxConfigs: configs, selectedConfig: configs[0] });
+    const updatedConfigs = configs.filter(item => item !== config);
+    saveConfigs(updatedConfigs);
+    return set({ emulatorConfigs: updatedConfigs, selectedConfig: updatedConfigs.find(item => kindOf(item) === emulator) || null });
   },
   renameEmulatorConfigAction: async (path) => {
-    const configs = get().ryujinxConfigs;
-    const config = configs.find(item => item.path === path);
+    const emulator = get().currentEmulator;
+    const configs = get().emulatorConfigs;
+    const config = configs.find(item => isConfigFor(item, emulator, path));
 
     if (!config) {
       return null;
@@ -132,15 +184,19 @@ const emulatorConfig = (set: SetState<IEmulatorConfig>, get: GetState<Partial<IA
       return null;
     }
 
-    const updatedConfigs = configs.map(item => item.path === path ? { ...item, name } : item);
-    const selectedConfig = updatedConfigs.find(item => item.path === path);
-    localStorage.setItem(LS_KEYS.CONFIG, JSON.stringify(updatedConfigs));
-    return set({ ryujinxConfigs: updatedConfigs, selectedConfig });
+    const updatedConfigs = configs.map(item => item === config ? { ...item, name } : item);
+    const selectedConfig = updatedConfigs.find(item => isConfigFor(item, emulator, path));
+    saveConfigs(updatedConfigs);
+    return set({ emulatorConfigs: updatedConfigs, selectedConfig });
   },
   changeEmulatorConfigPathAction: async (path) => {
+    const emulator = get().currentEmulator;
+
     await Swal.fire({
       icon: "info",
-      text: i18n.t("changeConfigPathDescription")
+      text: isEdenFamily(emulator)
+        ? fillPlaceholders(i18n.t("changeConfigPathDescriptionEdenFamily"), { emulator: EMULATOR_LABELS[emulator] })
+        : i18n.t("changeConfigPathDescription")
     });
 
     const response = await invokeIpc("get-directory");
@@ -154,34 +210,46 @@ const emulatorConfig = (set: SetState<IEmulatorConfig>, get: GetState<Partial<IA
       return null;
     }
 
-    const configs = get().ryujinxConfigs;
-    if (configs.find(item => item.path === response)) {
+    const configs = get().emulatorConfigs;
+    if (configs.find(item => isConfigFor(item, emulator, response))) {
       get().openAlertAction("error", "EMULATOR_PATH_ALREADY_EXISTS");
       return null;
     }
 
-    const updatedConfigs = configs.map(item => item.path === path ? { ...item, path: response } : item);
-    const selectedConfig = updatedConfigs.find(item => item.path === response);
-    localStorage.setItem("ryu-selected", response);
-    localStorage.setItem(LS_KEYS.CONFIG, JSON.stringify(updatedConfigs));
-    return set({ ryujinxConfigs: updatedConfigs, selectedConfig });
+    const updatedConfigs = configs.map(item => isConfigFor(item, emulator, path) ? { ...item, path: response } : item);
+    const selectedConfig = updatedConfigs.find(item => isConfigFor(item, emulator, response));
+    localStorage.setItem(selectedConfigKey(emulator), response);
+    saveConfigs(updatedConfigs);
+    return set({ emulatorConfigs: updatedConfigs, selectedConfig });
   },
   createDefaultConfig: async () => {
-    const configs = get().ryujinxConfigs;
+    const emulator = get().currentEmulator;
+    const hasDefault = (configs: EmulatorConfigMeta[]) => configs.some(c => c.isDefault && kindOf(c) === emulator);
 
-    if (configs.find(c => c.isDefault)) {
+    if (hasDefault(get().emulatorConfigs)) {
       return;
     }
 
-    const config: RyujinxConfigMeta = {
-      name: i18n.t("ryuDefault"),
-      path: await invokeIpc("get-ryujinx-appdata-path"),
+    const defaultPath = await invokeIpc("get-default-emulator-path", emulator);
+
+    // The user may have switched emulators, or another call may have added the default, while waiting.
+    const configs = get().emulatorConfigs;
+    if (hasDefault(configs)) {
+      return;
+    }
+
+    const config: EmulatorConfigMeta = {
+      name: i18n.t(DEFAULT_CONFIG_NAME_KEYS[emulator]),
+      path: defaultPath,
+      emulator,
       isDefault: true
     };
 
-    configs.push(config);
-    localStorage.setItem(LS_KEYS.CONFIG, JSON.stringify(configs));
-    return set({ ryujinxConfigs: configs, selectedConfig: config });
+    const updatedConfigs = [...configs, config];
+    saveConfigs(updatedConfigs);
+    return get().currentEmulator === emulator
+      ? set({ emulatorConfigs: updatedConfigs, selectedConfig: config })
+      : set({ emulatorConfigs: updatedConfigs });
   },
 });
 

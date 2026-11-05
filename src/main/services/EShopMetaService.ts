@@ -2,9 +2,11 @@ import fs from "fs-extra";
 import path from "path";
 import { Mutex } from "async-mutex";
 import { app } from "electron";
-import { EShopTitles, EShopTitleMeta } from "../../types";
+import { EmulatorKind, EShopTitles, EShopTitleMeta } from "../../types";
 import HttpService from "../services/HttpService";
 import custom_meta_json from "../../assets/custom_meta.json";
+import { normalizeKind } from "../../emulators";
+import { getEmulatorTitleMeta } from "../emulatorPaths";
 const customMetas = custom_meta_json as EShopTitles;
 
 class EShopMetaService {
@@ -47,7 +49,7 @@ class EShopMetaService {
     };
   }
 
-  async setTitleOverride(titleId: string, name: string): Promise<EShopTitleMeta> {
+  async setTitleOverride(titleId: string, name: string, dataPath?: string, emulator?: EmulatorKind): Promise<EShopTitleMeta> {
     titleId = titleId.toUpperCase();
     const titleOverrides = await this.getTitleOverrides();
 
@@ -62,7 +64,7 @@ class EShopMetaService {
     }
 
     await fs.writeJson(this.titleOverridesPath, titleOverrides, { spaces: 2 });
-    return this.getEShopMeta(titleId);
+    return this.getEShopMeta(titleId, dataPath, emulator);
   }
 
   private async getEShopTitles(): Promise<EShopTitles> {
@@ -87,29 +89,22 @@ class EShopMetaService {
     }
   }
 
-  private async getRyujinxMeta(titleId: string, dataPath?: string): Promise<Partial<EShopTitleMeta>> {
-    if (!dataPath) return {};
-
-    try {
-      const metadataPath = path.resolve(dataPath, "games", titleId.toLowerCase(), "gui", "metadata.json");
-      const metadata = await fs.readJson(metadataPath);
-
-      return metadata.title ? { name: metadata.title } : {};
-    } catch {
-      return {};
-    }
-  }
-
-  async getEShopMeta(titleId: string, dataPath?: string): Promise<EShopTitleMeta> {
+  async getEShopMeta(titleId: string, dataPath?: string, emulator?: EmulatorKind): Promise<EShopTitleMeta> {
     const eShopTitles = await this.getEShopTitles();
     titleId = titleId.toUpperCase();
     const titleOverrides = await this.getTitleOverrides();
 
     let titleMeta = titleOverrides[titleId] || customMetas[titleId] || (eShopTitles || {})[titleId] || { id: titleId, name: titleId, iconUrl: "" };
-    const ryujinxMeta = await this.getRyujinxMeta(titleId, dataPath);
+    const emulatorMeta = await getEmulatorTitleMeta(normalizeKind(emulator), dataPath, titleId);
 
-    if (!titleMeta.name || titleMeta.name === titleId) {
-      titleMeta = { ...titleMeta, ...ryujinxMeta };
+    if ((!titleMeta.name || titleMeta.name === titleId) && emulatorMeta.name) {
+      titleMeta = { ...titleMeta, name: emulatorMeta.name };
+    }
+
+    // Eden and Eglantine cache each game's icon, which covers titles the eShop list does not know (e.g. Switch 2 games).
+    const hasUsableIcon = Boolean(titleMeta.iconUrl) && !titleMeta.iconUrl.includes("image-not-found");
+    if (!hasUsableIcon && emulatorMeta.iconUrl) {
+      titleMeta = { ...titleMeta, iconUrl: emulatorMeta.iconUrl };
     }
 
     titleMeta.name ??= titleId;

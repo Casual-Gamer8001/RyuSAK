@@ -3,17 +3,18 @@ import Stack from "@mui/material/Stack";
 import Paper from "@mui/material/Paper";
 import { styled } from "@mui/material/styles";
 import "./gameListing.css";
-import { RyujinxConfigMeta, EShopTitleMeta, LS_KEYS } from "../../../types";
+import { EmulatorConfigMeta, EShopTitleMeta, LS_KEYS } from "../../../types";
 import useStore from "../../actions/state";
 import { Box, Button, Divider, Grid, TextField, Tooltip } from "@mui/material";
 import jackSober from "../../resources/jack_sober.png";
 import useTranslation from "../../i18n/I18nService";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useNavigate } from "react-router-dom";
-import { invokeIpc } from "../../utils";
+import { fillPlaceholders, invokeIpc } from "../../utils";
+import { EMULATOR_LABELS, isEdenFamily, kindOf } from "../../../emulators";
 
 interface IConfigContainer {
-  config: RyujinxConfigMeta;
+  config: EmulatorConfigMeta;
 }
 
 const nonAlphaNumeric = new RegExp(/[^a-z0-9\s]/g);
@@ -80,17 +81,18 @@ const GameListingComponent = ({ config }: IConfigContainer) => {
   const [showHiddenGames, setShowHiddenGames] = useState(false);
   const [hiddenGames, setHiddenGames] = useState<string[]>([]);
   const gameIconSize = gameIconSizeValue(settings.gameIconSize || "180");
+  const emulator = kindOf(config);
 
   // 1. Scan games on user system
   // 2. Build metadata from eshop with titleId as argument
   const createLibrary = async () => {
-    let titleIds = await invokeIpc("scan-games", config.path);
+    let titleIds = await invokeIpc("scan-games", config.path, emulator);
     titleIds = titleIds.filter(id => id !== "0000000000000000"); // Homebrew app
     const currentHiddenGames = getJsonLocalStorage<string[]>(LS_KEYS.HIDDEN_GAMES, []);
     setHiddenGames(currentHiddenGames);
     titleIds = showHiddenGames ? titleIds : titleIds.filter(id => !currentHiddenGames.includes(id.toUpperCase()));
 
-    const gamesCollection: EShopTitleMeta[] = await Promise.all(titleIds.map(async (i: string) => invokeIpc("build-metadata-from-titleId", i, config.path)));
+    const gamesCollection: EShopTitleMeta[] = await Promise.all(titleIds.map(async (i: string) => invokeIpc("build-metadata-from-titleId", i, config.path, emulator)));
     gamesCollection.forEach(title => title.normalizedName = title.name.toLowerCase().normalize("NFKD").replace(nonAlphaNumeric, ""));
 
     setGames(gamesCollection);
@@ -147,7 +149,7 @@ const GameListingComponent = ({ config }: IConfigContainer) => {
   };
 
   const onGameDetailClick = (titleId: string) => {
-    navigate("/detail", { state: { titleId, dataPath: config.path } });
+    navigate("/detail", { state: { titleId, dataPath: config.path, emulator } });
   };
 
   if ((games.length === 0 || filteredGames.length === 0 || !isLoaded) && searchTerm.length === 0) {
@@ -157,9 +159,13 @@ const GameListingComponent = ({ config }: IConfigContainer) => {
           <img width="100%" src={jackSober} alt="" />
         </p>
         <Divider />
-        <h4 dangerouslySetInnerHTML={{ __html: t("launchRyujinx") }} />
+        <h4 dangerouslySetInnerHTML={{
+          __html: isEdenFamily(emulator)
+            ? fillPlaceholders(t("launchEdenFamily"), { emulator: EMULATOR_LABELS[emulator] })
+            : t("launchRyujinx")
+        }} />
         {
-          process.platform === "linux" && (
+          process.platform === "linux" && !isEdenFamily(emulator) && (
             <p
               style={{ textAlign: "left", fontSize: "0.85em", opacity: 0.85, background: "rgba(255,255,255,0.05)", padding: "10px 14px", borderRadius: 6 }}
               dangerouslySetInnerHTML={{ __html: t("flatpakPathsHint") }}

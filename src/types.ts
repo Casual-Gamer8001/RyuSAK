@@ -42,9 +42,13 @@ export type RyusakShaderVariants = {
   };
 };
 
-export type RyujinxConfigMeta = {
+export type EmulatorKind = "ryujinx" | "eden" | "eglantine";
+
+export type EmulatorConfigMeta = {
   path: string,
   name: string,
+  // Configurations saved before multi-emulator support have no kind and belong to Ryujinx.
+  emulator?: EmulatorKind,
   isDefault?: boolean,
   selected?: boolean
 };

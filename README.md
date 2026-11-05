@@ -65,6 +65,7 @@ Download `RyuSAK-1.7.3-arm64.dmg` on an Apple Silicon (M1 or newer) Mac.
 
 ## Features
 * Add one or multiple Ryujinx/Ryubing data folders to manage different emulator installs
+* Manage Eden and Eglantine libraries next to Ryujinx/Ryubing, using the emulator tabs at the top
 * List your game library
 * Download, share, and merge shader caches through the community backend
 * Use shader cache variant metadata when different Ryujinx/Ryubing cache formats are available
@@ -76,6 +77,16 @@ Download `RyuSAK-1.7.3-arm64.dmg` on an Apple Silicon (M1 or newer) Mac.
 * Adjust game icon size with a polished live slider using friendly size labels
 * Update in place from within the app. Downloads are checked against the release's SHA-256 before anything is installed. On Windows a small update helper takes over while RyuSAK is closed: it backs up the install, runs the silent installer with a progress window, and restores the previous version if anything fails. Linux and Steam Deck apply the update the same way, with a full rollback, and relaunch automatically
 * Run on Steam Deck/SteamOS using the Linux x64 test package
+
+## Eden and Eglantine
+RyuSAK can also manage [Eden](https://git.eden-emu.dev/eden-emu/eden) and [Eglantine](https://github.com/Djihads80/Eglantine). Use the **Ryujinx**, **Eden** and **Eglantine** tabs at the top to switch emulators. Each one keeps its own list of configurations.
+
+* Games show up with the names and icons that Eden or Eglantine saved in their game list cache, so open the emulator once and let it load your game folders first.
+* For a portable install, choose **Configuration > Add additional configuration** and select the emulator program (`eden.exe` or `eglantine.exe`, the AppImage, or the `.app`). If a `user` folder sits next to it, RyuSAK uses that folder.
+* GameBanana mods are installed into the emulator's `load/<title ID>` folder.
+* Shader download and sharing work with Ryujinx/Ryubing only for now. The shader cache and mods buttons still open the right folders for Eden and Eglantine.
+* Eden 0.2.1 and older keep shader caches in the `shader` folder, while newer Eden builds and Eglantine use `cache/shader`. RyuSAK checks both.
+* Eden and Eglantine use the same standard data folder (`%APPDATA%\eden` on Windows, `~/.local/share/eden` on Linux and macOS). Their shader cache formats are different, so if you play the same game in both from that folder they keep deleting each other's cache. Using a portable install for one of them avoids that.
 
 ## Reporting issues & test results
 This is a community-driven fork, so anyone can help. Every report stays verifiable because the templates ask for the exact version, platform, and logs.

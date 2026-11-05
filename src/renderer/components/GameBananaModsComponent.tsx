@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { GameBananaFile, GameBananaMod } from "../../types";
+import { EmulatorKind, GameBananaFile, GameBananaMod } from "../../types";
 import { Alert, Box, Button, Divider, Grid, Tooltip, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
@@ -37,6 +37,7 @@ type Props = {
   titleId?: string,
   titleName?: string,
   dataPath?: string,
+  emulator?: EmulatorKind,
 };
 
 const formatBytes = (bytes: number) => {
@@ -46,7 +47,7 @@ const formatBytes = (bytes: number) => {
   return `${(bytes / Math.pow(1024, index)).toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
 };
 
-const GameBananaModsComponent = ({ titleId, titleName, dataPath }: Props) => {
+const GameBananaModsComponent = ({ titleId, titleName, dataPath, emulator }: Props) => {
   const [gameBananaMods, setGameBananaMods] = useState<Array<GameBananaMod>>(null);
   const [loading, setLoading] = useState(true);
   const [installingModId, setInstallingModId] = useState<number>(null);
@@ -92,7 +93,7 @@ const GameBananaModsComponent = ({ titleId, titleName, dataPath }: Props) => {
         selectedFile = files.find(file => `${file.id}` === result.value) || selectedFile;
       }
 
-      const destination = `${dataPath}\\mods\\contents\\${titleId.toLowerCase()}\\`;
+      const destination = await invokeIpc("get-mods-path", titleId, dataPath, emulator);
       const confirmation = await Swal.fire({
         icon: "question",
         title: t("gamebananaInstallTitle"),
@@ -112,7 +113,7 @@ const GameBananaModsComponent = ({ titleId, titleName, dataPath }: Props) => {
         didOpen: () => Swal.showLoading()
       });
 
-      const installPath = await invokeIpc("install-gamebanana-mod", titleId, mod.id, selectedFile.id, dataPath);
+      const installPath = await invokeIpc("install-gamebanana-mod", titleId, mod.id, selectedFile.id, dataPath, emulator);
       await Swal.fire({
         icon: "success",
         html: t("gamebananaInstalled").replace("{path}", installPath)

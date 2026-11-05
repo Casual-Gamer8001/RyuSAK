@@ -1,21 +1,18 @@
 import { shell } from "electron";
-import path from "path";
 import fs from "fs-extra";
+import { EmulatorKind } from "../../types";
+import { normalizeKind } from "../../emulators";
+import { getModsDir, getShaderDir } from "../emulatorPaths";
 
-export type openFolderIPCProps = [string, "shaders" | "mods", string];
+export type openFolderIPCProps = [string, "shaders" | "mods", string, EmulatorKind?];
 
 const openFolderForGame = async (...args: openFolderIPCProps) => {
-  const [titleId, dir, dataPath] = args;
+  const [titleId, dir, dataPath, emulator] = args;
+  const kind = normalizeKind(emulator);
+  const folder = dir === "mods" ? getModsDir(kind, dataPath, titleId) : getShaderDir(kind, dataPath, titleId);
 
-  if (dir === "mods") {
-    const modPath = path.resolve(dataPath, "mods", "contents", titleId.toLocaleLowerCase());
-    await fs.ensureDir(modPath); // Mod directory may not exist if it has never been opened so create it
-    return shell.openPath(modPath);
-  }
-
-  const shaderPath = path.resolve(dataPath, "games", titleId.toLocaleLowerCase(), "cache", "shader");
-  await fs.ensureDir(shaderPath); // shader directory may not exist if it has never been opened so create it
-  return shell.openPath(shaderPath);
+  await fs.ensureDir(folder); // The folder may not exist yet if the emulator has never created it, so create it
+  return shell.openPath(folder);
 };
 
 export default openFolderForGame;

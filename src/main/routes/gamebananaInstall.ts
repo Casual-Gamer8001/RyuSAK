@@ -3,12 +3,18 @@ import fs from "fs-extra";
 import path from "path";
 import Zip from "adm-zip";
 import HttpService from "../services/HttpService";
-import { GameBananaFile } from "../../types";
+import { EmulatorKind, GameBananaFile } from "../../types";
+import { normalizeKind } from "../../emulators";
+import { getModsDir } from "../emulatorPaths";
 
 export type getGameBananaModFilesProps = [number];
-export type installGameBananaModProps = [string, number, number, string];
+export type installGameBananaModProps = [string, number, number, string, EmulatorKind?];
+export type getModsPathProps = [string, string, EmulatorKind?];
 
-const getModPathForTitleId = (id: string, dataPath: string) => path.resolve(dataPath, "mods", "contents", id.toLocaleLowerCase());
+export const getModsPath = (...args: getModsPathProps) => {
+  const [titleId, dataPath, emulator] = args;
+  return getModsDir(normalizeKind(emulator), dataPath, titleId);
+};
 
 const sanitizePathSegment = (value: string) => Array.from(value)
   .map(char => (char.charCodeAt(0) < 32 || /[<>:"/\\|?*]/.test(char)) ? "_" : char)
@@ -194,7 +200,7 @@ export const getGameBananaModFiles = async (...args: getGameBananaModFilesProps)
 };
 
 export const installGameBananaMod = async (mainWindow: BrowserWindow, ...args: installGameBananaModProps): Promise<string> => {
-  const [titleId, modId, fileId, dataPath] = args;
+  const [titleId, modId, fileId, dataPath, emulator] = args;
   const files = await getGameBananaModFiles(modId);
   const file = files.find(item => item.id === fileId);
 
@@ -202,7 +208,7 @@ export const installGameBananaMod = async (mainWindow: BrowserWindow, ...args: i
     throw new Error("Selected GameBanana file is no longer available.");
   }
 
-  const targetDir = getModPathForTitleId(titleId, dataPath);
+  const targetDir = getModsPath(titleId, dataPath, emulator);
   const tempDir = path.join(app.getPath("temp"), "ryusak-gamebanana-mods", `${modId}-${fileId}-${Date.now()}`);
   const downloadPath = path.join(tempDir, sanitizePathSegment(file.name));
   const modFolderName = sanitizePathSegment(path.basename(file.name, path.extname(file.name)));
