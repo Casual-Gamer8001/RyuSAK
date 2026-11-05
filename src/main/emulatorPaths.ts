@@ -191,6 +191,12 @@ export const deleteGameData = async (kind: EmulatorKind, dataRoot: string, title
 
   if (!isEdenFamily(kind)) {
     await fs.remove(path.resolve(dataRoot, "games", titleId.toLowerCase()));
+
+    // Ryujinx loads a mod folder whatever the letter case of its name, and Linux keeps both cases apart.
+    const modsRoot = path.resolve(dataRoot, "mods", "contents");
+    for (const name of await readEntryNames(modsRoot, entry => entry.name.toLowerCase() === titleId.toLowerCase())) {
+      await fs.remove(path.join(modsRoot, name));
+    }
     return;
   }
 
