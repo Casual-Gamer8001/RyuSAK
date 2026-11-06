@@ -68,6 +68,7 @@ Download `RyuSAK-1.7.3-arm64.dmg` on an Apple Silicon (M1 or newer) Mac.
 * Manage Eden and Eglantine libraries next to Ryujinx/Ryubing, using the emulator tabs at the top
 * List your game library
 * Download, share, and merge shader caches through the community backend
+* Build a game's shaders from your own game files, so Ryubing compiles far fewer shaders while you play
 * Use shader cache variant metadata when different Ryujinx/Ryubing cache formats are available
 * Set custom game titles and covers
 * Hide duplicates/unknowns from the RyuSAK library
@@ -87,6 +88,20 @@ RyuSAK can also manage [Eden](https://git.eden-emu.dev/eden-emu/eden) and [Eglan
 * Shader download and sharing work with Ryujinx/Ryubing only for now. The shader cache and mods buttons still open the right folders for Eden and Eglantine.
 * Eden 0.2.1 and older keep shader caches in the `shader` folder, while newer Eden builds and Eglantine use `cache/shader`. RyuSAK checks both.
 * Eden and Eglantine use the same standard data folder (`%APPDATA%\eden` on Windows, `~/.local/share/eden` on Linux and macOS). Their shader cache formats are different, so if you play the same game in both from that folder they keep deleting each other's cache. Using a portable install for one of them avoids that.
+
+## Building shaders from game files
+Switch games ship their shaders compiled for the console's GPU, so Ryubing has to translate each one the first time the game uses it, which causes stutter. On a game's page, **Build shaders** reads the shader programs inside your own copy of the game (using the keys and game folders you set up in Ryubing) and adds them to Ryubing's shader cache ahead of time.
+
+* Start the game once in Ryubing (until the title screen) before building. RyuSAK learns the game's graphics settings from the shaders Ryubing saved on that first run. Building again later, after playing more, adds anything it missed.
+* Close Ryubing while building. The next time the game starts, Ryubing prepares the new shaders once, which can take a few minutes. After that, start-up is quick again.
+* Ryubing keeps every cached shader in memory, so a bigger cache uses more RAM. RyuSAK limits how many shaders it adds based on how much RAM your computer has.
+* **Remove built shaders** takes out only what RyuSAK added and keeps the shaders Ryubing compiled while you played. A backup of the cache is also kept in the game's `cache/ryusak-shader-backups` folder.
+* Built shaders stay on your computer: they are left out when you share shaders, and nothing is downloaded or uploaded while building.
+* This works with Ryubing's shader cache format only. If a future Ryubing version changes that format, RyuSAK refuses to change the cache until it is updated.
+
+In our test with Super Mario Odyssey, starting from a fresh player's cache, building added about 20,600 shaders. Ryubing then compiled 4 new shaders during the opening scenes instead of 99.
+
+The builder is a small .NET program in `shaderbuilder/`. It uses Ryubing's own shader translator (MIT licensed, see `shaderbuilder/ryubing/SOURCE.md`) to check each shader exactly the way Ryubing would.
 
 ## Reporting issues & test results
 This is a community-driven fork, so anyone can help. Every report stays verifiable because the templates ask for the exact version, platform, and logs.
@@ -112,12 +127,13 @@ If an in-app update fails, attach its logs. Each update keeps them in its own fo
 Requirements:
 * Node.js
 * Git
+* .NET 10 SDK (for the shader builder)
 
 Install dependencies: `npm install --include=dev`
 
-Run local build: `npm start`
+Run local build: `npm start` (run `node scripts/build-shader-builder.js` once first, so the shader builder is available)
 
-Package a Windows build: `npm run build` (this also compiles the Windows update helper in `updater/windows` with the .NET Framework 4 C# compiler that comes with Windows)
+Package a Windows build: `npm run build` (this also publishes the shader builder in `shaderbuilder/` with the .NET SDK, and compiles the Windows update helper in `updater/windows` with the .NET Framework 4 C# compiler that comes with Windows)
 
 ## Credits
 * Ecks1337 and contributors for the original RyuSAK project

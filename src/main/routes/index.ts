@@ -13,6 +13,7 @@ import openFolderForGame, { openFolderIPCProps } from "./openFolderForGame";
 import ryujinxCompatibility, { ryujinxCompatibilityProps } from "./ryujinxCompatibility";
 import downloadCommunitySave from "./savesDownload";
 import { countShaders, countShadersProps, getShaderCacheKey, installShaders, installShadersProps, shareShaders } from "./shaders";
+import { runShaderBuilder, runShaderBuilderProps } from "./shaderBuilder";
 import { searchGameBanana, searchProps } from "./gamebanana";
 import {
   getGameBananaModFiles,
@@ -43,6 +44,7 @@ export type IPCCalls = {
   "get-shader-cache-key": ReturnType<typeof getShaderCacheKey>,
   "install-shaders": ReturnType<typeof installShaders>,
   "share-shaders": ReturnType<typeof shareShaders>,
+  "run-shader-builder": ReturnType<typeof runShaderBuilder>,
   "search-gamebanana": ReturnType<typeof searchGameBanana>,
   "get-gamebanana-mod-files": ReturnType<typeof getGameBananaModFiles>,
   "install-gamebanana-mod": ReturnType<typeof installGameBananaMod>,
@@ -72,6 +74,7 @@ const makeIpcRoutes = (mainWindow: BrowserWindow) => {
   ipcMain.handle("get-shader-cache-key", async (_, titleId: string, dataPath: string) => getShaderCacheKey(titleId, dataPath));
   ipcMain.handle("install-shaders", async (_, ...args: installShadersProps) => installShaders(mainWindow, ...args));
   ipcMain.handle("share-shaders", async (_, ...args: shareShaders) => shareShaders(mainWindow, ...args));
+  ipcMain.handle("run-shader-builder", async (_, ...args: runShaderBuilderProps) => runShaderBuilder(mainWindow, ...args));
   ipcMain.handle("search-gamebanana", async (_, ...args: searchProps) => searchGameBanana(...args));
   ipcMain.handle("get-gamebanana-mod-files", async (_, ...args: getGameBananaModFilesProps) => getGameBananaModFiles(...args));
   ipcMain.handle("install-gamebanana-mod", async (_, ...args: installGameBananaModProps) => installGameBananaMod(mainWindow, ...args));

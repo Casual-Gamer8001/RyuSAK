@@ -30,6 +30,11 @@ jobs:
           node-version: 24
           cache: 'npm'
 
+      - name: Setup .NET SDK (shader builder)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
       - name: Install dependencies
         run: npm install --include=dev
 
@@ -56,6 +61,11 @@ jobs:
         with:
           node-version: 24
           cache: 'npm'
+
+      - name: Setup .NET SDK (shader builder)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
 
       - name: Install dependencies
         run: npm install --include=dev
@@ -107,6 +117,11 @@ jobs:
           node-version: 24
           cache: 'npm'
 
+      - name: Setup .NET SDK (shader builder)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
       - name: Install dependencies
         run: npm install --include=dev
 
@@ -134,6 +149,7 @@ jobs:
           printf 'portable' > RyuSAK-linux-x64/portable
           # Ensure the launcher is executable; native zip preserves Unix modes.
           chmod +x RyuSAK-linux-x64/RyuSAK
+          chmod +x RyuSAK-linux-x64/resources/shaderbuilder/RyuSAK.ShaderBuilder
           zip -ry "RyuSAK-${VERSION}-steamdeck-linux-x64.zip" RyuSAK-linux-x64 > /dev/null
           ls -l "RyuSAK-${VERSION}-steamdeck-linux-x64.zip"
 
@@ -159,6 +175,11 @@ jobs:
           node-version: 24
           cache: 'npm'
 
+      - name: Setup .NET SDK (shader builder)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
       - name: Install dependencies
         run: npm install --include=dev
 
@@ -170,6 +191,8 @@ jobs:
           set -euo pipefail
           APP="out/RyuSAK-darwin-arm64/RyuSAK.app"
           # arm64 apps must be at least ad-hoc signed to launch; no Apple account needed.
+          # The shader builder is a separate program inside the app, so it is signed first.
+          codesign --force --sign - "$APP/Contents/Resources/shaderbuilder/RyuSAK.ShaderBuilder"
           codesign --force --deep --sign - "$APP"
           codesign --verify --deep --strict "$APP" || true
 

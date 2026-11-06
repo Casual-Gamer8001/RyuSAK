@@ -7,6 +7,7 @@ import EShopMetaService from "../services/EShopMetaService";
 import { Buffer } from "buffer";
 import FormData from "form-data";
 import { MirrorUploadResponse } from "../../types";
+import { exportShadersForSharing } from "./shaderBuilder";
 
 export type countShadersProps = [string, string, number];
 
@@ -74,6 +75,9 @@ export const installShaders = async (mainWindow: BrowserWindow, ...args: install
   await fs.ensureDir(shaderCacheDir);
   await fs.emptyDir(shaderCacheDir);
 
+  // The downloaded cache replaces everything, including shaders RyuSAK built, so their record goes too.
+  await fs.remove(path.resolve(shaderCacheDir, "..", "ryusak-built.json"));
+
   const shaderCacheZipPath = path.resolve(shaderCacheDir, `${titleId}.zip`);
   const result = await HttpService.getShadersZipWithProgress(titleId, shaderCacheZipPath, mainWindow, shaderPath);
 
@@ -91,16 +95,35 @@ export const installShaders = async (mainWindow: BrowserWindow, ...args: install
 export const shareShaders = async (mainWindow: BrowserWindow, ...args: shareShaders) => {
   const [titleId, dataPath, localCount] = args;
   const metadata = await EShopMetaService.getEShopMeta(titleId);
-  const shaderCacheDir = path.resolve(dataPath, "games", titleId.toLowerCase(), "cache", "shader");
+  const gameCacheDir = path.resolve(dataPath, "games", titleId.toLowerCase(), "cache");
+  let shaderCacheDir = path.resolve(gameCacheDir, "shader");
+  let exportDir: string = null;
   const shaderCacheZipPath = path.resolve(app.getPath("temp"), `ryusak-${titleId}-${Date.now()}.zip`);
 
-  const shaderCacheZip = new zip();
-  shaderCacheZip.addLocalFile(path.resolve(shaderCacheDir, "guest.data"));
-  shaderCacheZip.addLocalFile(path.resolve(shaderCacheDir, "guest.toc"));
-  shaderCacheZip.addLocalFile(path.resolve(shaderCacheDir, "shared.data"));
-  shaderCacheZip.addLocalFile(path.resolve(shaderCacheDir, "shared.toc"));
+  // Shaders RyuSAK built from the game files are only for this computer, so they are left out of shared caches.
+  if (await fs.pathExists(path.resolve(gameCacheDir, "ryusak-built.json"))) {
+    exportDir = await exportShadersForSharing(titleId, dataPath);
+    if (!exportDir) {
+      return { error: true, code: "SHADER_EXPORT_FAIL", message: null };
+    }
 
-  await writeZipAsync(shaderCacheZip, shaderCacheZipPath);
+    shaderCacheDir = exportDir;
+  }
+
+  try {
+    const shaderCacheZip = new zip();
+    shaderCacheZip.addLocalFile(path.resolve(shaderCacheDir, "guest.data"));
+    shaderCacheZip.addLocalFile(path.resolve(shaderCacheDir, "guest.toc"));
+    shaderCacheZip.addLocalFile(path.resolve(shaderCacheDir, "shared.data"));
+    shaderCacheZip.addLocalFile(path.resolve(shaderCacheDir, "shared.toc"));
+
+    await writeZipAsync(shaderCacheZip, shaderCacheZipPath);
+  } finally {
+    if (exportDir) {
+      await fs.remove(exportDir).catch(() => null);
+    }
+  }
+
   mainWindow.webContents.send("download-progress", titleId, "100.00");
 
   try {

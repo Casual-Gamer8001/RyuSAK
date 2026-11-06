@@ -22,6 +22,7 @@ import MuiGrid from "@mui/material/Grid";
 import GameBananaModsComponent from "../GameBananaModsComponent";
 import DeleteIcon from "@mui/icons-material/Delete";
 import BugReportIcon from "@mui/icons-material/BugReport";
+import BuildIcon from "@mui/icons-material/Build";
 import { useLocation, useNavigate } from "react-router-dom";
 import { fillPlaceholders, invokeIpc } from "../../utils";
 import { EMULATOR_LABELS, normalizeKind, supportsCompatibilityData, supportsShaderSharing } from "../../../emulators";
@@ -81,6 +82,8 @@ const GameDetailComponent = () => {
     needRefreshShaders,
     shareShaders,
     refreshShaderIndexAction,
+    buildShadersAction,
+    removeBuiltShadersAction,
     deleteGameAction,
     threshold,
     shadersMinVersion,
@@ -93,6 +96,8 @@ const GameDetailComponent = () => {
     state.needRefreshShaders,
     state.shareShaders,
     state.refreshShaderIndexAction,
+    state.buildShadersAction,
+    state.removeBuiltShadersAction,
     state.deleteGameAction,
     state.threshold,
     state.shadersMinVersion,
@@ -103,6 +108,8 @@ const GameDetailComponent = () => {
   const [compat, setCompat] = useState<GithubLabel[]>(null);
   const [_compatMode, setCompatMode] = useState<GithubIssue["mode"]>(null);
   const [localShadersCount, setLocalShadersCount] = useState(0);
+  const [builtShadersCount, setBuiltShadersCount] = useState(0);
+  const [shaderBuilderBusy, setShaderBuilderBusy] = useState(false);
   const [localShaderCacheKey, setLocalShaderCacheKey] = useState<string>(null);
   const [customCoverUrl, setCustomCoverUrl] = useState("");
   const { t } = useTranslation();
@@ -162,6 +169,9 @@ const GameDetailComponent = () => {
       refreshShaderIndexAction();
       invokeIpc("count-shaders", titleId, dataPath, shadersMinVersion).then(setLocalShadersCount);
       invokeIpc("get-shader-cache-key", titleId, dataPath).then(setLocalShaderCacheKey);
+      invokeIpc("run-shader-builder", "status", titleId, dataPath)
+        .then(outcome => setBuiltShadersCount(outcome.ok ? +outcome.result.builtPrograms || 0 : 0))
+        .catch(() => setBuiltShadersCount(0));
     }
     setCustomCoverUrl(getJsonLocalStorage<{ [key: string]: string }>(LS_KEYS.COVER_OVERRIDES, {})[titleId] || "");
   }, [titleId, needRefreshShaders]);
@@ -344,6 +354,17 @@ const GameDetailComponent = () => {
   const shouldShowLaunchGameForShadersReminder = !localShaderCacheKey && hasShaderVariants && !ryujinxShaders[metaData.id];
   const ryusakShadersCount = matchingShaderVariant?.shaderCount || ryujinxShaders[metaData.id] || 0;
   const ryusakShadersPath = matchingShaderVariant?.path;
+  // Shaders RyuSAK built from the game files stay on this computer, so they don't count towards sharing.
+  const shareableShadersCount = Math.max(0, localShadersCount - builtShadersCount);
+
+  const runShaderBuilderAction = async (action: () => Promise<void>) => {
+    setShaderBuilderBusy(true);
+    try {
+      await action();
+    } finally {
+      setShaderBuilderBusy(false);
+    }
+  };
 
   return (
     <Box p={3}>
@@ -497,8 +518,8 @@ const GameDetailComponent = () => {
                   <Button
                     variant="contained"
                     fullWidth
-                    disabled={threshold == -1 ? true : ((ryusakShadersCount + threshold) >= localShadersCount)}
-                    onClick={() => shareShaders(metaData.id, dataPath, localShadersCount, ryusakShadersCount)}
+                    disabled={threshold == -1 ? true : ((ryusakShadersCount + threshold) >= shareableShadersCount)}
+                    onClick={() => shareShaders(metaData.id, dataPath, shareableShadersCount, ryusakShadersCount)}
                   >
                     {threshold == -1 ? t("shaderUploadingUnavailable") : t("shareShaders")}
                   </Button>
@@ -541,6 +562,49 @@ const GameDetailComponent = () => {
             >
               {t("reportFaultyShaderCache")}
             </Button>
+          </Box>
+
+          <Box mt={3}>
+            <h3 style={{ margin: "0 auto" }}>
+              <Tooltip placement="right" title={(<div dangerouslySetInnerHTML={{ __html: t("buildShadersInfo") }} />)}>
+                <IconButton style={{ position: "relative", top: -3 }} size="small" color="primary">
+                  <InfoIcon />
+                </IconButton>
+              </Tooltip>
+              {t("buildShaders")}
+            </h3>
+            <Divider />
+            {
+              builtShadersCount > 0 && (
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  {fillPlaceholders(t("builtShadersCount"), { count: `${builtShadersCount}` })}
+                </Alert>
+              )
+            }
+            <Grid container spacing={2} mt={0}>
+              <Grid item xs={6}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  disabled={shaderBuilderBusy}
+                  startIcon={<BuildIcon />}
+                  onClick={() => runShaderBuilderAction(() => buildShadersAction(metaData.id, dataPath, metaData.name))}
+                >
+                  {t("buildShadersButton")}
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button
+                  variant="outlined"
+                  color="warning"
+                  fullWidth
+                  disabled={shaderBuilderBusy || builtShadersCount === 0}
+                  onClick={() => runShaderBuilderAction(() => removeBuiltShadersAction(metaData.id, dataPath, builtShadersCount))}
+                >
+                  {t("removeBuiltShaders")}
+                </Button>
+              </Grid>
+            </Grid>
           </Box>
             </>)
           }

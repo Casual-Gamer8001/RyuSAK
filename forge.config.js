@@ -2,6 +2,7 @@ const fs = require("fs-extra");
 const path = require("path");
 const Zip = require("adm-zip");
 const { buildUpdateHelper } = require("./scripts/build-update-helper");
+const { buildShaderBuilder } = require("./scripts/build-shader-builder");
 
 module.exports = {
   "forge": "./forge.config.js",
@@ -31,8 +32,14 @@ module.exports = {
     ]
   ],
   "hooks": {
-    // Windows builds ship the update helper and its build receipt in resources/updater.
-    "packageAfterCopy": async (_, buildPath, __, platform) => {
+    "packageAfterCopy": async (_, buildPath, __, platform, arch) => {
+      // Every build ships the shader builder in resources/shaderbuilder.
+      const builderPath = buildShaderBuilder(platform, arch);
+      const builderDir = path.resolve(buildPath, "..", "shaderbuilder");
+      fs.ensureDirSync(builderDir);
+      fs.copySync(builderPath, path.join(builderDir, path.basename(builderPath)));
+
+      // Windows builds also ship the update helper and its build receipt in resources/updater.
       if (platform !== "win32") {
         return;
       }
