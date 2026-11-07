@@ -36,6 +36,9 @@ sealed class Profile
     /// <summary>Programs already in the cache, by guest code identity of each stage and the unaligned storage flag.</summary>
     public HashSet<string> Existing = new();
 
+    /// <summary>The same, only for programs the game compiled itself (not ones RyuSAK added).</summary>
+    public HashSet<string> Played = new();
+
     public HashSet<ulong> KnownGuest = new();
 
     public static string Signature(ulong[] guestIds, bool unaligned) => string.Join(",", guestIds) + (unaligned ? ",u" : ",a");
@@ -82,6 +85,8 @@ sealed class Profile
                     p.KnownGuest.Add(guest.Id);
                 }
             }
+
+            p.Played.Add(Signature(ids, program.IsCompute ? program.State.Comp.HasUnalignedStorageBuffer : program.State.Gfx.HasUnalignedStorageBuffer));
 
             if (program.State.Pipeline != null && PlainGraphics(program))
             {

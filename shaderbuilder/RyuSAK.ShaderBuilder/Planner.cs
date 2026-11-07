@@ -14,6 +14,9 @@ sealed class PlanOptions
     /// "all" guesses one for every entry, "learned" only uses state the game used with the same vertex shader, "none" saves none.
     /// </summary>
     public string Pipeline = "all";
+
+    /// <summary>How likely the game is to use a program (lower first); the build is filled in that order. Optional.</summary>
+    public Func<ProgramKey, int> Rank;
 }
 
 sealed class PlannedProgram
@@ -256,10 +259,17 @@ static class Planner
                 if (profile.Existing.Contains(Profile.Signature(guestIds, unaligned)))
                 {
                     plan.AlreadyCached++;
-                    usedContainers.Add(found.ContainerId);
+                    if (profile.Played.Contains(Profile.Signature(guestIds, unaligned)))
+                    {
+                        usedContainers.UnionWith(found.ContainerIds);
+                    }
+
                     if (profile.PipelineBySignature.TryGetValue(string.Join(",", guestIds), out byte[] usedPipeline))
                     {
-                        containerPipeline.TryAdd(found.ContainerId, usedPipeline);
+                        foreach (ulong containerId in found.ContainerIds)
+                        {
+                            containerPipeline.TryAdd(containerId, usedPipeline);
+                        }
                     }
 
                     continue;
@@ -294,15 +304,18 @@ static class Planner
             SpecState state = planned.Entry.State;
             if (options.Pipeline == "all" && !state.Compute && state.Pipeline == null)
             {
-                state.Pipeline = containerPipeline.GetValueOrDefault(planned.Source.ContainerId) ?? profile.PipelineDefault;
+                state.Pipeline = planned.Source.ContainerIds.Select(id => containerPipeline.GetValueOrDefault(id)).FirstOrDefault(p => p != null)
+                    ?? profile.PipelineDefault;
             }
         }
 
-        // When capped, keep programs whose code the game already used, then programs from shader files that hold a
-        // program the game used, then the ones listed most often.
+        // When capped, keep the programs the game is most likely to use: by the game's model materials when known,
+        // then programs whose code the game already used, programs from shader files that hold a program the game
+        // used, and the ones listed most often.
         IEnumerable<PlannedProgram> ordered = candidates
-            .OrderByDescending(p => p.Learned && usedContainers.Contains(p.Source.ContainerId))
-            .ThenByDescending(p => usedContainers.Contains(p.Source.ContainerId))
+            .OrderBy(p => options.Rank?.Invoke(p.Source.Key) ?? 0)
+            .ThenByDescending(p => p.Learned && p.Source.SharesContainerWith(usedContainers))
+            .ThenByDescending(p => p.Source.SharesContainerWith(usedContainers))
             .ThenByDescending(p => p.Learned)
             .ThenBy(p => p.Unaligned)
             .ThenByDescending(p => p.Source.Occurrences);

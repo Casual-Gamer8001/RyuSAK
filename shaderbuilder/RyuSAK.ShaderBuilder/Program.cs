@@ -75,6 +75,7 @@ static class Program
                 "export" => Export(options),
                 "backups" => ListBackups(options),
                 "evaluate" => Evaluate(options),
+                "usage" => Usage(options),
                 _ => throw new BuilderException("USAGE", $"Unknown command \"{args[0]}\"."),
             };
         }
@@ -134,10 +135,10 @@ static class Program
         return (dataDir, titleId);
     }
 
-    private static Context Prepare(Dictionary<string, string> options)
+    private static Context Prepare(Dictionary<string, string> options, bool readMaterials = false)
     {
         (string dataDir, ulong titleId) = Target(options);
-        Context context = new() { DataDir = dataDir, TitleId = titleId, Finder = new ShaderFinder() };
+        Context context = new() { DataDir = dataDir, TitleId = titleId, Finder = new ShaderFinder { ReadMaterials = readMaterials } };
 
         Output.Progress("locate", 0, 0, "Reading your keys");
         KeySet keySet = GameLocator.LoadKeys(dataDir, options.GetValueOrDefault("keys"));
@@ -296,7 +297,7 @@ static class Program
 
     private static int Build(Dictionary<string, string> options, bool write)
     {
-        Context context = Prepare(options);
+        Context context = Prepare(options, readMaterials: true);
         string shaderDir = Backups.ShaderDir(context.DataDir, context.TitleId);
         RyubingCache cache = RyubingCache.Load(shaderDir);
         HashSet<ulong> built = BuiltRegistry.Load(context.DataDir, context.TitleId);
@@ -332,6 +333,9 @@ static class Program
 
         Dictionary<ulong, StageProbe> probes = Planner.ProbeAll(context.Finder, profile, (done, total) => Output.Progress("probe", done, total, "Checking shaders"));
         PlanOptions planOptions = PlanOptionsFrom(options, DefaultMaxPrograms(cache.Programs.Count));
+        Output.Progress("rank", 0, 0, "Checking which shaders the game's models use");
+        BuildPriority priority = RankByMaterials(context.Finder, probes, cache, built);
+        planOptions.Rank = priority == null ? null : priority.Rank;
         Plan plan = Planner.Build(context.Finder, probes, profile, planOptions);
 
         result["programsFound"] = plan.ProgramsFound;
@@ -339,6 +343,7 @@ static class Program
         result["newPrograms"] = plan.Programs.Count;
         result["limit"] = planOptions.MaxPrograms == int.MaxValue ? -1 : planOptions.MaxPrograms;
         result["cappedOut"] = plan.CappedOut;
+        result["materials"] = context.Finder.Materials.Count;
         result["skipped"] = plan.Skipped;
         result["unalignedCopies"] = plan.Programs.Count(p => p.Unaligned);
 
@@ -427,6 +432,60 @@ static class Program
         (string dataDir, ulong titleId) = Target(options);
         List<string> backups = Backups.List(dataDir, titleId);
         Output.Result(new Dictionary<string, object> { ["backups"] = backups }, backups.Count == 0 ? "No backups." : string.Join(Environment.NewLine, backups));
+        return 0;
+    }
+
+    /// <summary>
+    /// Ranks the programs found by how likely the game is to use them, from its model materials and the programs
+    /// the player's cache shows it used (not counting ones RyuSAK added). Null if the game has no material archives.
+    /// </summary>
+    private static BuildPriority RankByMaterials(ShaderFinder finder, Dictionary<ulong, StageProbe> probes, RyubingCache cache, HashSet<ulong> built)
+    {
+        if (finder.ShadingModels.IsEmpty)
+        {
+            return null;
+        }
+
+        MaterialUsage usage = MaterialUsage.Analyze(finder);
+        Dictionary<ProgramKey, ulong[]> stageIds = ProgramSignatures.StageIds(finder, probes);
+        Dictionary<ProgramKey, string> signatureOf = ProgramSignatures.Compute(stageIds);
+        IEnumerable<CacheProgram> real = built.Count == 0 ? cache.Programs : cache.Programs.Where(p => !built.Contains(p.Fingerprint));
+        HashSet<ProgramKey> learned = ProgramSignatures.Used(cache, real, signatureOf);
+        return BuildPriority.Compute(finder, usage, learned, stageIds).WithPolicy(BuildPriority.FixedPolicy);
+    }
+
+    /// <summary>
+    /// Test mode: sorts the programs in the game files by whether a model material can select them, and checks
+    /// that against the programs the game really compiled (the full cache).
+    /// </summary>
+    private static int Usage(Dictionary<string, string> options)
+    {
+        Context context = Prepare(options, readMaterials: true);
+        string cacheDir = options.GetValueOrDefault("cache") ?? Backups.ShaderDir(context.DataDir, context.TitleId);
+        RyubingCache full = RyubingCache.Load(cacheDir);
+        Profile profile = Profile.Learn(full, index => UsedAttributes(full, index));
+        Dictionary<ulong, StageProbe> probes = Planner.ProbeAll(context.Finder, profile, (done, total) => Output.Progress("probe", done, total, "Checking shaders"));
+        MaterialUsage usage = MaterialUsage.Analyze(context.Finder);
+
+        // Plans as a new player's build would make them: learning from the first programs only, no limit.
+        Dictionary<int, Profile> firstRuns = new();
+        Plan PlanWith(int learnCount, Func<ProgramKey, int> rank)
+        {
+            if (!firstRuns.TryGetValue(learnCount, out Profile firstRun))
+            {
+                firstRuns[learnCount] = firstRun = Profile.Learn(full, index => UsedAttributes(full, index), learnCount);
+            }
+
+            PlanOptions planOptions = PlanOptionsFrom(options, int.MaxValue);
+            planOptions.Rank = rank;
+            return Planner.Build(context.Finder, probes, firstRun, planOptions);
+        }
+
+        string report = $"Scanned {context.FilesScanned} files ({context.BytesScanned >> 20} MB) in {context.ScanTime.TotalSeconds:F0}s"
+            + Environment.NewLine + string.Join(", ", context.Finder.Counters.OrderBy(kv => kv.Key).Select(kv => $"{kv.Key}={kv.Value}"))
+            + Environment.NewLine + UsageReport.Run(full, context.Finder, probes, usage, PlanWith);
+
+        Output.Result(new Dictionary<string, object> { ["report"] = report }, report);
         return 0;
     }
 

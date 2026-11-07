@@ -34,9 +34,12 @@ record struct ProgramKey(ulong Vertex, ulong TessControl, ulong TessEval, ulong 
 sealed class FoundProgram
 {
     public ProgramKey Key;
-    public string Container;
-    public ulong ContainerId;
+    public ConcurrentDictionary<ulong, string> Containers { get; } = new();
     public int Occurrences;
+
+    public IEnumerable<ulong> ContainerIds => Containers.Keys;
+
+    public bool SharesContainerWith(HashSet<ulong> ids) => ContainerIds.Any(ids.Contains);
 }
 
 /// <summary>
@@ -50,6 +53,11 @@ sealed class ShaderFinder
     public ConcurrentDictionary<ulong, StageBlob> Blobs { get; } = new();
     public ConcurrentDictionary<ProgramKey, FoundProgram> Programs { get; } = new();
     public ConcurrentDictionary<string, long> Counters { get; } = new();
+    public ConcurrentBag<ShadingModelInfo> ShadingModels { get; } = new();
+    public ConcurrentBag<MaterialInfo> Materials { get; } = new();
+
+    /// <summary>Also read model materials and shader archives, to tell which programs materials can select.</summary>
+    public bool ReadMaterials { get; init; }
 
     public void Count(string name, long value = 1) => Counters.AddOrUpdate(name, value, (_, v) => v + value);
 
@@ -57,6 +65,11 @@ sealed class ShaderFinder
     {
         Count("bytes scanned", Math.Min(scanLimit, buf.Length));
         ParseBnsh(buf, name, scanLimit);
+
+        if (ReadMaterials)
+        {
+            MaterialReader.Scan(this, buf, scanLimit);
+        }
 
         if (depth >= MaxDepth)
         {
@@ -239,40 +252,9 @@ sealed class ShaderFinder
                 {
                     int v = checked(b + (int)variationStart + i * 64);
                     int program = checked(b + (int)U64(s, v + 0x10));
-                    ulong[] ids = new ulong[6];
-
-                    for (int stage = 0; stage < 6; stage++)
-                    {
-                        long codeOffset = (long)U64(s, program + 0x08 + stage * 8);
-                        if (codeOffset == 0)
-                        {
-                            continue;
-                        }
-
-                        int c = checked(b + (int)codeOffset);
-                        int control = checked(b + (int)U64(s, c + 0x08));
-                        int byteCode = checked(b + (int)U64(s, c + 0x10));
-                        int byteCodeSize = (int)U32(s, c + 0x18);
-                        int controlSize = (int)U32(s, c + 0x1C);
-
-                        if (byteCodeSize < 0x40 || controlSize < 0x700 || byteCode + byteCodeSize > s.Length || control + controlSize > s.Length)
-                        {
-                            throw new InvalidDataException();
-                        }
-
-                        ReadOnlySpan<byte> controlBytes = s.Slice(control, controlSize);
-                        ReadOnlySpan<byte> codeBytes = s.Slice(byteCode, byteCodeSize);
-                        ulong id = RyubingCache.IdOf(codeBytes, controlBytes);
-                        ids[stage] = id;
-
-                        if (!Blobs.ContainsKey(id))
-                        {
-                            Blobs.TryAdd(id, new StageBlob { Id = id, BnshStage = stage, Control = controlBytes.ToArray(), ByteCode = codeBytes.ToArray() });
-                        }
-                    }
-
-                    ProgramKey key = ProgramKey.From(ids);
-                    FoundProgram found = Programs.GetOrAdd(key, k => new FoundProgram { Key = k, Container = label, ContainerId = containerId });
+                    ProgramKey key = ReadProgram(buffer, b, program, register: true) ?? throw new InvalidDataException();
+                    FoundProgram found = Programs.GetOrAdd(key, k => new FoundProgram { Key = k });
+                    found.Containers.TryAdd(containerId, label);
                     Interlocked.Increment(ref found.Occurrences);
                 }
 
@@ -284,6 +266,55 @@ sealed class ShaderFinder
                 Count("bnsh containers that could not be read");
             }
         }
+    }
+
+    /// <summary>
+    /// Identifies the stages of the BNSH program at <paramref name="program"/> (offsets inside are relative to the
+    /// BNSH container at <paramref name="b"/>). Returns null if the program doesn't look valid.
+    /// </summary>
+    public ProgramKey? ReadProgram(byte[] buffer, int b, int program, bool register)
+    {
+        ReadOnlySpan<byte> s = buffer;
+        ulong[] ids = new ulong[6];
+
+        try
+        {
+            for (int stage = 0; stage < 6; stage++)
+            {
+                long codeOffset = (long)U64(s, program + 0x08 + stage * 8);
+                if (codeOffset == 0)
+                {
+                    continue;
+                }
+
+                int c = checked(b + (int)codeOffset);
+                int control = checked(b + (int)U64(s, c + 0x08));
+                int byteCode = checked(b + (int)U64(s, c + 0x10));
+                int byteCodeSize = (int)U32(s, c + 0x18);
+                int controlSize = (int)U32(s, c + 0x1C);
+
+                if (byteCodeSize < 0x40 || controlSize < 0x700 || byteCode + byteCodeSize > s.Length || control + controlSize > s.Length)
+                {
+                    return null;
+                }
+
+                ReadOnlySpan<byte> controlBytes = s.Slice(control, controlSize);
+                ReadOnlySpan<byte> codeBytes = s.Slice(byteCode, byteCodeSize);
+                ulong id = RyubingCache.IdOf(codeBytes, controlBytes);
+                ids[stage] = id;
+
+                if (register && !Blobs.ContainsKey(id))
+                {
+                    Blobs.TryAdd(id, new StageBlob { Id = id, BnshStage = stage, Control = controlBytes.ToArray(), ByteCode = codeBytes.ToArray() });
+                }
+            }
+        }
+        catch (Exception e) when (e is ArgumentOutOfRangeException or OverflowException)
+        {
+            return null;
+        }
+
+        return ProgramKey.From(ids);
     }
 }
 

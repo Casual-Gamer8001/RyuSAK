@@ -94,7 +94,7 @@ Switch games ship their shaders compiled for the console's GPU, so Ryubing has t
 
 * Start the game once in Ryubing (until the title screen) before building. RyuSAK learns the game's graphics settings from the shaders Ryubing saved on that first run. Building again later, after playing more, adds anything it missed.
 * Close Ryubing while building. The next time the game starts, Ryubing prepares the new shaders once, which can take a few minutes. After that, start-up is quick again.
-* Ryubing keeps every cached shader in memory, so a bigger cache uses more RAM. RyuSAK limits how many shaders it adds based on how much RAM your computer has.
+* Ryubing keeps every cached shader in memory, so a bigger cache uses more RAM. RyuSAK limits how many shaders it adds based on how much RAM your computer has. When a game has more shaders than the limit, RyuSAK builds the ones its model materials and your own play history indicate are most likely to be used first.
 * **Remove built shaders** takes out only what RyuSAK added and keeps the shaders Ryubing compiled while you played. A backup of the cache is also kept in the game's `cache/ryusak-shader-backups` folder.
 * Built shaders stay on your computer: they are left out when you share shaders, and nothing is downloaded or uploaded while building.
 * This works with Ryubing's shader cache format only. If a future Ryubing version changes that format, RyuSAK refuses to change the cache until it is updated.
