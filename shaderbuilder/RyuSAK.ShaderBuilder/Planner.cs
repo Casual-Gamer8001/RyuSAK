@@ -17,6 +17,9 @@ sealed class PlanOptions
 
     /// <summary>How likely the game is to use a program (lower first); the build is filled in that order. Optional.</summary>
     public Func<ProgramKey, int> Rank;
+
+    /// <summary>Whether to build a program. Optional; all programs are eligible by default.</summary>
+    public Func<ProgramKey, bool> Include;
 }
 
 sealed class PlannedProgram
@@ -253,6 +256,8 @@ static class Planner
             }
 
             bool learnedCode = guestIds.Any(id => id != 0 && profile.KnownGuest.Contains(id));
+            bool excluded = options.Include != null && !options.Include(key);
+            bool exclusionReported = false;
 
             foreach (bool unaligned in unalignedVariants ? new[] { false, true } : new[] { false })
             {
@@ -270,6 +275,17 @@ static class Planner
                         {
                             containerPipeline.TryAdd(containerId, usedPipeline);
                         }
+                    }
+
+                    continue;
+                }
+
+                if (excluded)
+                {
+                    if (!exclusionReported)
+                    {
+                        plan.Skip("unlikely to be used");
+                        exclusionReported = true;
                     }
 
                     continue;

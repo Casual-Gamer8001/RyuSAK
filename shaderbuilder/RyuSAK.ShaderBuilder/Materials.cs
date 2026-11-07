@@ -745,6 +745,9 @@ sealed class BuildPriority
 
     public int Rank(ProgramKey key) => EvidenceOf.TryGetValue(key, out Evidence evidence) ? Policy(evidence) : Possible;
 
+    public bool IsLikely(ProgramKey key) =>
+        EvidenceOf.TryGetValue(key, out Evidence evidence) && SignalTier(evidence) == 0;
+
     public static int DefaultPolicy(Evidence e) =>
         !e.HasFlag(Evidence.InArchive) ? Likely
         : !e.HasFlag(Evidence.ModelUsed) ? Possible

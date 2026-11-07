@@ -336,6 +336,7 @@ static class Program
         Output.Progress("rank", 0, 0, "Checking which shaders the game's models use");
         BuildPriority priority = RankByMaterials(context.Finder, probes, cache, built);
         planOptions.Rank = priority == null ? null : priority.Rank;
+        planOptions.Include = priority == null ? null : priority.IsLikely;
         Plan plan = Planner.Build(context.Finder, probes, profile, planOptions);
 
         result["programsFound"] = plan.ProgramsFound;
