@@ -17,6 +17,7 @@ export interface IEmulatorConfig {
   renameEmulatorConfigAction: (path: string) => void,
   changeEmulatorConfigPathAction: (path: string) => void,
   createDefaultConfig: () => void;
+  renameLegacyDefaultConfigsAction: () => void;
   emulatorGames: RyusakEmulatorGame[];
 }
 
@@ -28,6 +29,23 @@ const DEFAULT_CONFIG_NAME_KEYS: Record<EmulatorKind, string> = {
   eden: "edenDefault",
   eglantine: "eglantineDefault"
 };
+
+// Every name RyuSAK ever gave the default configuration before it said Ryubing (all languages and past wordings).
+const LEGACY_RYUJINX_DEFAULT_NAMES = new Set([
+  "Ryujinx Global (default)",
+  "Ryujinx Global (Default)",
+  "Ryujinx Global (défaut)",
+  "Ryujinx Global (padrão)",
+  "Ryujinx Global (par défaut)",
+  "Ryujinx Global (Por defecto)",
+  "Ryujinx Global (standard)",
+  "Ryujinx Global (Standard)",
+  "Ryujinx Global (varsayılan)",
+  "Ryujinx Global (по умолчанию)",
+  "Ryujinx Global (デフォルト)",
+  "Ryujinx Globale (Predefinita)",
+  "Ryujinx 全局 (默认)"
+]);
 
 // Configurations saved before multi-emulator support have no emulator field and belong to Ryujinx.
 const configuredEmulators: EmulatorConfigMeta[] = ((JSON.parse(localStorage.getItem(LS_KEYS.CONFIG)) || []) as EmulatorConfigMeta[])
@@ -250,6 +268,22 @@ const emulatorConfig = (set: SetState<IEmulatorConfig>, get: GetState<Partial<IA
     return get().currentEmulator === emulator
       ? set({ emulatorConfigs: updatedConfigs, selectedConfig: config })
       : set({ emulatorConfigs: updatedConfigs });
+  },
+  // A default configuration still named "Ryujinx Global (default)" (in any language) gets the Ryubing name.
+  // Names the user changed are kept. Runs from the UI because translations aren't loaded when the store is created.
+  renameLegacyDefaultConfigsAction: () => {
+    const newName = i18n.t(DEFAULT_CONFIG_NAME_KEYS.ryujinx);
+    const configs = get().emulatorConfigs;
+    const isLegacyDefault = (config: EmulatorConfigMeta) =>
+      config.isDefault && kindOf(config) === "ryujinx" && LEGACY_RYUJINX_DEFAULT_NAMES.has(config.name);
+
+    if (!newName || LEGACY_RYUJINX_DEFAULT_NAMES.has(newName) || !configs.some(isLegacyDefault)) {
+      return;
+    }
+
+    const updatedConfigs = configs.map(config => isLegacyDefault(config) ? { ...config, name: newName } : config);
+    saveConfigs(updatedConfigs);
+    return set({ emulatorConfigs: updatedConfigs });
   },
 });
 

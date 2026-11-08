@@ -2,8 +2,9 @@ import { EmulatorConfigMeta, EmulatorKind } from "./types";
 
 export const EMULATOR_KINDS: EmulatorKind[] = ["ryujinx", "eden", "eglantine"];
 
+// The "ryujinx" kind covers Ryubing and older Ryujinx builds, which use the same Ryujinx data folder.
 export const EMULATOR_LABELS: Record<EmulatorKind, string> = {
-  ryujinx: "Ryujinx",
+  ryujinx: "Ryubing",
   eden: "Eden",
   eglantine: "Eglantine"
 };

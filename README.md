@@ -80,7 +80,7 @@ Download `RyuSAK-1.7.3-arm64.dmg` on an Apple Silicon (M1 or newer) Mac.
 * Run on Steam Deck/SteamOS using the Linux x64 test package
 
 ## Eden and Eglantine
-RyuSAK can also manage [Eden](https://git.eden-emu.dev/eden-emu/eden) and [Eglantine](https://github.com/Djihads80/Eglantine). Use the **Ryujinx**, **Eden** and **Eglantine** tabs at the top to switch emulators. Each one keeps its own list of configurations.
+RyuSAK can also manage [Eden](https://git.eden-emu.dev/eden-emu/eden) and [Eglantine](https://github.com/Djihads80/Eglantine). Use the **Ryubing**, **Eden** and **Eglantine** tabs at the top to switch emulators. Each one keeps its own list of configurations. The **Ryubing** tab also works with older Ryujinx builds, which use the same data folder.
 
 * Games show up with the names and icons that Eden or Eglantine saved in their game list cache, so open the emulator once and let it load your game folders first.
 * For a portable install, choose **Configuration > Add additional configuration** and select the emulator program (`eden.exe` or `eglantine.exe`, the AppImage, or the `.app`). If a `user` folder sits next to it, RyuSAK uses that folder.

@@ -40,6 +40,7 @@ const MainComponent = () => {
     setSelectConfigAction,
     addNewEmulatorConfigAction,
     createDefaultConfig,
+    renameLegacyDefaultConfigsAction,
   ] = useStore(state => [
     state.emulatorConfigs,
     state.currentEmulator,
@@ -51,6 +52,7 @@ const MainComponent = () => {
     state.setSelectConfigAction,
     state.addNewEmulatorConfigAction,
     state.createDefaultConfig,
+    state.renameLegacyDefaultConfigsAction,
   ]);
 
   const { t } = useTranslation();
@@ -74,6 +76,10 @@ const MainComponent = () => {
       switchEmulatorAction(value);
     }
   };
+
+  useEffect(() => {
+    renameLegacyDefaultConfigsAction();
+  }, []);
 
   useEffect(() => {
     if (configsForEmulator.length === 0) {
