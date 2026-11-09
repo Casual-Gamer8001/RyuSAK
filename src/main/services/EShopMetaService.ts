@@ -101,7 +101,7 @@ class EShopMetaService {
       titleMeta = { ...titleMeta, name: emulatorMeta.name };
     }
 
-    // Eden and Eglantine cache each game's icon, which covers titles the eShop list does not know (e.g. Switch 2 games).
+    // Eden caches each game's icon, which covers titles the eShop list does not know.
     const hasUsableIcon = Boolean(titleMeta.iconUrl) && !titleMeta.iconUrl.includes("image-not-found");
     if (!hasUsableIcon && emulatorMeta.iconUrl) {
       titleMeta = { ...titleMeta, iconUrl: emulatorMeta.iconUrl };

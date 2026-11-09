@@ -4,7 +4,7 @@ import { EmulatorConfigMeta, EmulatorKind, RyusakEmulatorGame, LS_KEYS } from ".
 import Swal from "sweetalert2";
 import { i18n } from "../app";
 import { fillPlaceholders, invokeIpc } from "../utils";
-import { EMULATOR_LABELS, EMULATOR_PROGRAM_NAMES, isEdenFamily, kindOf, normalizeKind } from "../../emulators";
+import { EMULATOR_LABELS, EMULATOR_PROGRAM_NAMES, isEdenFamily, isEmulatorKind, kindOf, normalizeKind } from "../../emulators";
 
 export interface IEmulatorConfig {
   addNewEmulatorConfigAction: () => void;
@@ -26,8 +26,7 @@ export const selectedConfigKey = (emulator: EmulatorKind) => emulator === "ryuji
 
 const DEFAULT_CONFIG_NAME_KEYS: Record<EmulatorKind, string> = {
   ryujinx: "ryuDefault",
-  eden: "edenDefault",
-  eglantine: "eglantineDefault"
+  eden: "edenDefault"
 };
 
 // Every name RyuSAK ever gave the default configuration before it said Ryubing (all languages and past wordings).
@@ -48,10 +47,13 @@ const LEGACY_RYUJINX_DEFAULT_NAMES = new Set([
 ]);
 
 // Configurations saved before multi-emulator support have no emulator field and belong to Ryujinx.
-const configuredEmulators: EmulatorConfigMeta[] = ((JSON.parse(localStorage.getItem(LS_KEYS.CONFIG)) || []) as EmulatorConfigMeta[])
-  .map(config => ({ ...config, emulator: kindOf(config) }));
+// Configurations for an emulator this version doesn't support stay saved as they are, but aren't shown.
+const savedConfigs = (JSON.parse(localStorage.getItem(LS_KEYS.CONFIG)) || []) as EmulatorConfigMeta[];
+const isShown = (config: EmulatorConfigMeta) => !config.emulator || isEmulatorKind(config.emulator);
+const hiddenConfigs = savedConfigs.filter(config => !isShown(config));
+const configuredEmulators: EmulatorConfigMeta[] = savedConfigs.filter(isShown).map(config => ({ ...config, emulator: kindOf(config) }));
 
-const saveConfigs = (configs: EmulatorConfigMeta[]) => localStorage.setItem(LS_KEYS.CONFIG, JSON.stringify(configs));
+const saveConfigs = (configs: EmulatorConfigMeta[]) => localStorage.setItem(LS_KEYS.CONFIG, JSON.stringify([...configs, ...hiddenConfigs]));
 
 const isConfigFor = (config: EmulatorConfigMeta, emulator: EmulatorKind, path: string) => kindOf(config) === emulator && config.path === path;
 

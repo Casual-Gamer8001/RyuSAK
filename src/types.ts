@@ -42,7 +42,7 @@ export type RyusakShaderVariants = {
   };
 };
 
-export type EmulatorKind = "ryujinx" | "eden" | "eglantine";
+export type EmulatorKind = "ryujinx" | "eden";
 
 export type EmulatorConfigMeta = {
   path: string,

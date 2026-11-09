@@ -4,7 +4,7 @@ import path from "path";
 import { EmulatorKind } from "../types";
 import { isEdenFamily } from "../emulators";
 
-// Eden and Eglantine both use these folder names (src/common/fs/fs_paths.h: EDEN_DIR, PORTABLE_DIR).
+// Eden uses these folder names (src/common/fs/fs_paths.h: EDEN_DIR, PORTABLE_DIR).
 const EDEN_FAMILY_DIR = "eden";
 const EDEN_FAMILY_PORTABLE_DIR = "user";
 const TITLE_ID_PATTERN = /^[0-9a-f]{16}$/i;
@@ -56,7 +56,7 @@ export const getEdenFamilyCacheDir = (dataRoot: string) => {
   return path.join(dataRoot, "cache");
 };
 
-// Eden 0.2.1 and older keep shader caches in <data>/shader. Newer Eden builds (June 2026, #4093) and Eglantine
+// Eden 0.2.1 and older keep shader caches in <data>/shader. Newer Eden builds (June 2026, #4093)
 // use <cache>/shader instead, and nothing moves the old folder, so either place can hold a game's cache.
 const getEdenFamilyShaderRoots = (dataRoot: string) => ({
   current: path.join(getEdenFamilyCacheDir(dataRoot), "shader"),
@@ -218,12 +218,11 @@ export const deleteGameData = async (kind: EmulatorKind, dataRoot: string, title
 export const programMatchesKind = (kind: EmulatorKind, programPath: string) => {
   const name = path.basename(programPath).toLowerCase();
 
-  if (kind === "eglantine") return name.includes("eglantine");
-  if (kind === "eden") return name.includes("eden") && !name.includes("eglantine");
+  if (kind === "eden") return name.includes("eden");
   return name.includes("ryujinx") || name.includes("ryubing");
 };
 
-// A "user" folder next to the program makes Eden and Eglantine portable (path_util.cpp Reinitialize).
+// A "user" folder next to the program makes Eden portable (path_util.cpp Reinitialize).
 export const resolveEdenFamilyDataRoot = async (programPath: string): Promise<EmulatorProgramLocation> => {
   const portableDir = path.join(path.dirname(programPath), EDEN_FAMILY_PORTABLE_DIR);
 
