@@ -18,6 +18,8 @@ Download RyuSAK from the [v1.7.3 release](https://github.com/Casual-Gamer8001/Ry
 ### Windows
 Download `RyuSAK-1.7.3-Setup.exe`. The setup wizard asks whether you want a standard install or a portable install before you choose the install folder.
 
+If Windows SmartScreen says it protected your PC, choose **More info**, then **Run anyway**. This community build is not code signed.
+
 #### Standard install
 Choose **Standard install** in setup to store RyuSAK settings in your Windows user profile.
 
@@ -59,8 +61,10 @@ Common Flatpak data paths are:
 Download `RyuSAK-1.7.3-arm64.dmg` on an Apple Silicon (M1 or newer) Mac.
 
 1. Open the `.dmg` and drag **RyuSAK** to your **Applications** folder.
-2. This community build is not signed with an Apple Developer certificate, so the first launch is blocked by Gatekeeper. To open it, **right-click (or Control-click) RyuSAK in Applications and choose Open**, then confirm **Open** in the dialog. You only need to do this once.
-   - If macOS still refuses, run `xattr -cr /Applications/RyuSAK.app` in Terminal to clear the download quarantine, then open it normally.
+2. This community build is not signed with an Apple Developer certificate, so Gatekeeper blocks the first launch. You only need to allow it once:
+   - **macOS 15 or newer:** try to open RyuSAK, then go to **System Settings > Privacy & Security**, scroll down and click **Open Anyway**.
+   - **macOS 14 or older:** right-click (or Control-click) RyuSAK in Applications, choose **Open**, then confirm **Open** in the dialog.
+   - If macOS says the app is damaged or still refuses, run `xattr -cr /Applications/RyuSAK.app` in Terminal to clear the download quarantine, then open it normally.
 3. In RyuSAK, use **Configuration** to select your Ryujinx/Ryubing data folder.
 
 ## Features
@@ -133,6 +137,8 @@ Install dependencies: `npm install --include=dev`
 Run local build: `npm start` (run `node scripts/build-shader-builder.js` once first, so the shader builder is available)
 
 Package a Windows build: `npm run build` (this also publishes the shader builder in `shaderbuilder/` with the .NET SDK, and compiles the Windows update helper in `updater/windows` with the .NET Framework 4 C# compiler that comes with Windows)
+
+Publishing a GitHub release (not a pre-release) posts a short announcement in #ryusak-announcements on the Discord and pings the RyuSAK role (`.github/workflows/announce-release.yml`). It uses the `DISCORD_RELEASE_WEBHOOK` repository secret and the `DISCORD_RELEASE_ROLE_ID` repository variable. To check the setup without posting, run the workflow by hand with **dry run** turned on.
 
 ## Credits
 * Ecks1337 and contributors for the original RyuSAK project
